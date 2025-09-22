@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import SearchBar from '../components/SearchBar';
 import { useTranslation } from 'react-i18next';
 import axios from 'axios';
 import './HomePage.css';
@@ -18,6 +19,7 @@ const Home = () => {
   const [lightningText, setLightningText] = useState('');
   const [lightningLocation, setLightningLocation] = useState('');
   const [lightningEta, setLightningEta] = useState('30');
+  const [backendHealth, setBackendHealth] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -62,6 +64,19 @@ const Home = () => {
 
     fetchData();
   }, [t]);
+
+  useEffect(() => {
+    // 백엔드 헬스체크 표시
+    const loadHealth = async () => {
+      try {
+        const resp = await axios.get('/api/health');
+        setBackendHealth(resp.data);
+      } catch (e) {
+        setBackendHealth({ status: 'DOWN' });
+      }
+    };
+    loadHealth();
+  }, []);
 
   const submitLightningRequest = (e) => {
     e.preventDefault();
@@ -148,6 +163,9 @@ const Home = () => {
                 <i className="fas fa-users"></i>
                 모임 참여하기
               </Link>
+            </div>
+            <div className="hero-search">
+              <SearchBar />
             </div>
           </div>
           <div className="hero-stats">
@@ -515,6 +533,10 @@ const Home = () => {
                       <i className="fas fa-plus"></i>
                       참여하기
                     </Link>
+                    <Link to={`/meetups/${meetup.id}/chat`} className="btn btn-outline" style={{ marginLeft: '0.5rem' }}>
+                      <i className="fas fa-comments"></i>
+                      채팅
+                    </Link>
                   </div>
                 </div>
               ))}
@@ -594,6 +616,19 @@ const Home = () => {
           </div>
         </div>
       </section>
+
+      {/* Footer Links & Health */}
+      <footer className="home-footer">
+        <div className="container footer-inner">
+          <div className="footer-links">
+            <Link to="/terms">이용약관</Link>
+            <Link to="/privacy">개인정보 처리방침</Link>
+          </div>
+          <div className={`footer-health ${backendHealth?.status === 'UP' ? 'ok' : 'down'}`}>
+            백엔드 상태: {backendHealth?.status || '확인 중'}
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };

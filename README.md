@@ -121,7 +121,7 @@ The frontend will start on `http://localhost:3000`
 
 ### Meetups
 - `GET /api/meetups` - Get all meetups
-- `GET /api/meetups/active` - Get active meetups
+- `GET 확인pi/meetups/active` - Get active meetups
 - `GET /api/meetups/spontaneous` - Get spontaneous meetups
 - `GET /api/meetups/{id}` - Get meetup by ID
 - `GET /api/meetups/creator/{creatorId}` - Get meetups by creator
@@ -206,3 +206,18 @@ hobbylink-clone/
 ## License
 
 This project is open source and available under the MIT License.
+
+## HTML 미리보기(루트)
+
+프로젝트 최상위 폴더에 디자인 확인용 정적 HTML을 배치했습니다. 브라우저로 파일을 직접 열어 빠르게 확인할 수 있습니다.
+
+- `intro.html` — 인트로 랜딩
+- `main.html` — 대시보드 미리보기
+- `terms.html` — 이용약관
+- `privacy.html` — 개인정보 처리방침
+
+백엔드로 서빙되는 동일 페이지는 다음 경로에서도 접근 가능합니다:
+- `http://localhost:8081/intro.html`
+- `http://localhost:8081/main.html`
+- `http://localhost:8081/terms.html`
+- `http://localhost:8081/privacy.html`

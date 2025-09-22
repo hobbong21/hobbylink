@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HobbyLink - 인트로</title>
+  <title>HobbyLink - 인트로 (프리뷰)</title>
   <style>
     body { margin:0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans KR', Arial, sans-serif; color:#1f2937; }
     .hero { min-height: 90vh; display:flex; align-items:center; justify-content:center; text-align:center; background: linear-gradient(135deg,#667eea 0%, #764ba2 100%); color:#fff; padding: 3rem 1rem; }
@@ -16,9 +16,6 @@
     .footer { padding:2rem 1rem; border-top:1px solid #e5e7eb; color:#6b7280; }
     .links a { margin-right: 1rem; color:#374151; text-decoration:none; }
     .badge { display:inline-block; background:#f59e0b; color:#fff; padding:.15rem .5rem; border-radius:6px; font-size:.8rem; font-weight:700; }
-    .health { margin-top:1rem; font-size:.9rem; }
-    .health.ok { color:#059669; }
-    .health.fail { color:#dc2626; }
   </style>
 </head>
 <body>
@@ -29,9 +26,8 @@
       <p class="lead">HobbyLink에서 당신의 취향에 꼭 맞는 밋업을 발견하고, 마음이 통하는 친구들을 만나보세요.</p>
       <div style="display:flex; gap:.75rem; justify-content:center; flex-wrap:wrap;">
         <a class="cta" href="/">앱 시작하기 (SPA)</a>
-        <a class="cta" href="/main.html" style="background:#f3f4f6; color:#374151;">대시보드 미리보기(HTML)</a>
+        <a class="cta" href="main.html" style="background:#f3f4f6; color:#374151;">대시보드 미리보기(HTML)</a>
       </div>
-      <div id="health" class="health">백엔드 상태 확인 중...</div>
     </div>
   </section>
 
@@ -45,7 +41,7 @@
       <div class="card">
         <h3>신뢰할 수 있는 커뮤니티</h3>
         <p>AI 평판 시스템으로 안전한 만남을 지원합니다.</p>
-        <a href="/privacy" style="text-decoration:none;color:#4c51bf;font-weight:700;">개인정보 처리방침 →</a>
+        <a href="privacy.html" style="text-decoration:none;color:#4c51bf;font-weight:700;">개인정보 처리방침 →</a>
       </div>
       <div class="card">
         <h3>즉흥적인 번개 밋업</h3>
@@ -55,26 +51,14 @@
     </div>
 
     <div class="links">
-      <a href="/terms">이용약관</a>
-      <a href="/privacy">개인정보 처리방침</a>
+      <a href="terms.html">이용약관</a>
+      <a href="privacy.html">개인정보 처리방침</a>
     </div>
   </div>
 
   <footer class="footer">
     <div class="container">© 2024 HobbyLink. 모든 권리 보유.</div>
   </footer>
-
-  <script>
-    fetch('/api/health').then(r=>r.json()).then(data=>{
-      const el = document.getElementById('health');
-      el.textContent = `백엔드 상태: ${data.status} (${new Date(data.timestamp).toLocaleString()})`;
-      el.classList.add('ok');
-    }).catch(()=>{
-      const el = document.getElementById('health');
-      el.textContent = '백엔드 상태: 연결 실패';
-      el.classList.add('fail');
-    });
-  </script>
 </body>
 </html>
 
