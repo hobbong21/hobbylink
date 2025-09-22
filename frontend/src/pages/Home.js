@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import axios from 'axios';
 import './HomePage.css';
 
 const Home = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [recentProjects, setRecentProjects] = useState([]);
   const [featuredStudios, setFeaturedStudios] = useState([]);
   const [upcomingMeetups, setUpcomingMeetups] = useState([]);
@@ -14,6 +15,9 @@ const Home = () => {
   const [topMembers, setTopMembers] = useState([]);
   const [friendRequests, setFriendRequests] = useState([]);
   const [showAnnouncement, setShowAnnouncement] = useState(true);
+  const [lightningText, setLightningText] = useState('');
+  const [lightningLocation, setLightningLocation] = useState('');
+  const [lightningEta, setLightningEta] = useState('30');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -58,6 +62,15 @@ const Home = () => {
 
     fetchData();
   }, [t]);
+
+  const submitLightningRequest = (e) => {
+    e.preventDefault();
+    const query = new URLSearchParams();
+    if (lightningText) query.set('q', lightningText);
+    if (lightningLocation) query.set('location', lightningLocation);
+    if (lightningEta) query.set('eta', lightningEta);
+    navigate(`/meetups?${query.toString()}`);
+  };
 
   const handleImageError = (e) => {
     e.target.src = 'https://via.placeholder.com/400x300?text=No+Image';
@@ -162,9 +175,33 @@ const Home = () => {
               <h2>긴급 번개 요청 ⚡</h2>
               <p>"지금 당장 뭐할까?" AI에게 즉석 밋업을 요청해보세요. (예: 30분 뒤 근처 카페에서 보드게임)</p>
             </div>
-            <div className="lightning-action">
-              <Link to="/meetups" className="btn btn-primary">요청 보내기</Link>
-            </div>
+            <form className="lightning-form" onSubmit={submitLightningRequest}>
+              <input
+                type="text"
+                className="lightning-input"
+                placeholder="예: 강남역에서 보드게임"
+                value={lightningText}
+                onChange={(e) => setLightningText(e.target.value)}
+              />
+              <input
+                type="text"
+                className="lightning-input"
+                placeholder="위치(선택): 예) Gangnam"
+                value={lightningLocation}
+                onChange={(e) => setLightningLocation(e.target.value)}
+              />
+              <select
+                className="lightning-select"
+                value={lightningEta}
+                onChange={(e) => setLightningEta(e.target.value)}
+                aria-label="ETA"
+              >
+                <option value="15">15분</option>
+                <option value="30">30분</option>
+                <option value="60">60분</option>
+              </select>
+              <button type="submit" className="btn btn-primary">요청 보내기</button>
+            </form>
           </div>
         </div>
       </section>
@@ -295,6 +332,9 @@ const Home = () => {
                   <div className="meetup-content">
                     <h3 className="meetup-title">{meetup.title}</h3>
                     <p className="meetup-description">{meetup.description?.substring(0, 100)}{meetup.description?.length > 100 ? '...' : ''}</p>
+                    {meetup.reputation != null && (
+                      <div className="meetup-reputation">평판: {meetup.reputation}</div>
+                    )}
                   </div>
                   <div className="meetup-actions">
                     <Link to={`/meetups/${meetup.id}`} className="btn btn-primary">상세보기</Link>

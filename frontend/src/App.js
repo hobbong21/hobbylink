@@ -9,6 +9,8 @@ import Meetups from './pages/Meetups';
 import Profile from './pages/Profile';
 import ProfileEdit from './pages/ProfileEdit';
 import About from './pages/About';
+import Terms from './pages/Terms';
+import Privacy from './pages/Privacy';
 import StudioDetail from './pages/StudioDetail';
 import ProjectDetail from './pages/ProjectDetail';
 import MeetupDetail from './pages/MeetupDetail';
@@ -22,6 +24,8 @@ function App() {
         <Header />
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/privacy" element={<Privacy />} />
           <Route path="/studios" element={<Studios />} />
           <Route path="/studios/:id" element={<StudioDetail />} />
           <Route path="/projects" element={<Projects />} />
