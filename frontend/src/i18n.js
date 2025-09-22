@@ -202,7 +202,20 @@ const resources = {
       "common.save": "Save",
       "common.cancel": "Cancel",
       "common.edit": "Edit",
-      "common.delete": "Delete"
+      "common.delete": "Delete",
+      
+      // Authentication
+      "auth.signIn": "Sign In",
+      "auth.signUp": "Sign Up",
+      "auth.signOut": "Sign Out",
+      "auth.username": "Username",
+      "auth.password": "Password",
+      "auth.email": "Email",
+      "auth.loading": "Loading...",
+      "auth.error": "Authentication failed",
+      "auth.signupSuccess": "Account created successfully! Please sign in.",
+      "auth.haveAccount": "Already have an account? Sign in",
+      "auth.needAccount": "Need an account? Sign up"
     }
   },
   ko: {
@@ -404,7 +417,20 @@ const resources = {
       "common.save": "저장",
       "common.cancel": "취소",
       "common.edit": "편집",
-      "common.delete": "삭제"
+      "common.delete": "삭제",
+      
+      // Authentication
+      "auth.signIn": "로그인",
+      "auth.signUp": "회원가입",
+      "auth.signOut": "로그아웃",
+      "auth.username": "사용자명",
+      "auth.password": "비밀번호",
+      "auth.email": "이메일",
+      "auth.loading": "로딩 중...",
+      "auth.error": "인증에 실패했습니다",
+      "auth.signupSuccess": "계정이 성공적으로 생성되었습니다! 로그인해주세요.",
+      "auth.haveAccount": "이미 계정이 있으신가요? 로그인",
+      "auth.needAccount": "계정이 필요하신가요? 회원가입"
     }
   }
 };

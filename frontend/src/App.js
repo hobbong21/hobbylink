@@ -11,6 +11,7 @@ import ProfileEdit from './pages/ProfileEdit';
 import About from './pages/About';
 import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
+import Login from './pages/Login';
 import StudioDetail from './pages/StudioDetail';
 import ProjectDetail from './pages/ProjectDetail';
 import MeetupDetail from './pages/MeetupDetail';
@@ -26,6 +27,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy" element={<Privacy />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/studios" element={<Studios />} />
           <Route path="/studios/:id" element={<StudioDetail />} />
           <Route path="/projects" element={<Projects />} />

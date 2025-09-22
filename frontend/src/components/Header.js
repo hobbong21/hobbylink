@@ -1,14 +1,17 @@
-import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import LanguageSelector from './LanguageSelector';
 import NotificationBell from './NotificationBell';
+import AuthService from '../services/AuthService';
 import './Header.css';
 
 const Header = () => {
   const { t } = useTranslation();
   const location = useLocation();
+  const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const isActive = (path) => {
     if (path === '/' && location.pathname === '/') return true;
@@ -22,6 +25,17 @@ const Header = () => {
 
   const closeMobileMenu = () => {
     setIsMobileMenuOpen(false);
+  };
+
+  useEffect(() => {
+    setIsAuthenticated(AuthService.isAuthenticated());
+  }, [location]);
+
+  const handleSignOut = async () => {
+    await AuthService.signOut();
+    setIsAuthenticated(false);
+    navigate('/');
+    closeMobileMenu();
   };
 
   return (
@@ -102,6 +116,24 @@ const Header = () => {
             <div className="nav-actions">
               <NotificationBell />
               <LanguageSelector />
+              {isAuthenticated ? (
+                <button 
+                  className="auth-button signout-button"
+                  onClick={handleSignOut}
+                >
+                  <i className="fas fa-sign-out-alt"></i>
+                  <span>{t('auth.signOut')}</span>
+                </button>
+              ) : (
+                <Link 
+                  to="/login" 
+                  className="auth-button signin-button"
+                  onClick={closeMobileMenu}
+                >
+                  <i className="fas fa-sign-in-alt"></i>
+                  <span>{t('auth.signIn')}</span>
+                </Link>
+              )}
               <button 
                 className="mobile-menu-toggle"
                 onClick={toggleMobileMenu}
