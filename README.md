@@ -89,6 +89,27 @@ npm start
 
 The frontend will start on `http://localhost:3000`
 
+### Docker Setup
+
+1. Build and run with Docker Compose:
+```bash
+docker-compose up -d
+```
+
+2. Or build images separately:
+```bash
+# Windows
+build.bat
+
+# Unix/Linux/macOS
+chmod +x build.sh
+./build.sh
+```
+
+3. Access the application:
+- Frontend: `http://localhost`
+- Backend API: `http://localhost:8081`
+
 ## API Endpoints
 
 ### Users
