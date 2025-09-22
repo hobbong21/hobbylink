@@ -31,13 +31,10 @@ public class SecurityConfig {
                 .requestMatchers("/ws/**").permitAll()
                 // CORS preflight 허용
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                // 읽기 전용 GET은 임시 허용 (인증 도입 전까지)
-                .requestMatchers(HttpMethod.GET, "/api/**").permitAll()
-                // 쓰기/변경은 인증 요구 (추후 JWT 적용 시 강화)
-                .requestMatchers(HttpMethod.POST, "/api/**").authenticated()
-                .requestMatchers(HttpMethod.PUT, "/api/**").authenticated()
-                .requestMatchers(HttpMethod.PATCH, "/api/**").authenticated()
-                .requestMatchers(HttpMethod.DELETE, "/api/**").authenticated()
+                // 개발 중 모든 API 엔드포인트 허용 (추후 JWT 인증 적용 예정)
+                .requestMatchers("/api/**").permitAll()
+                // 정적 리소스 허용
+                .requestMatchers("/static/**", "/*.html", "/*.css", "/*.js").permitAll()
                 .anyRequest().permitAll()
             )
             .headers(headers -> headers.frameOptions(frame -> frame.disable()));

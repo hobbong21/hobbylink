@@ -121,7 +121,7 @@ The frontend will start on `http://localhost:3000`
 
 ### Meetups
 - `GET /api/meetups` - Get all meetups
-- `GET 확인pi/meetups/active` - Get active meetups
+- `GET /api/meetups/active` - Get active meetups
 - `GET /api/meetups/spontaneous` - Get spontaneous meetups
 - `GET /api/meetups/{id}` - Get meetup by ID
 - `GET /api/meetups/creator/{creatorId}` - Get meetups by creator

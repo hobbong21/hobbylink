@@ -200,6 +200,10 @@
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
+.hero-search {
+  margin-top: 1rem;
+}
+
 .stat-item {
   text-align: center;
   color: white;
@@ -865,6 +869,28 @@
 .cta-section .btn-outline {
   border-color: rgba(255, 255, 255, 0.5);
 }
+
+/* Footer */
+.home-footer {
+  background: #fff;
+  border-top: 1px solid #e5e7eb;
+}
+
+.footer-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 0;
+}
+
+.footer-links a {
+  color: #4a5568;
+  text-decoration: none;
+  margin-right: 1rem;
+}
+
+.footer-health.ok { color: #059669; }
+.footer-health.down { color: #dc2626; }
 
 /* Responsive Design */
 @media (max-width: 768px) {
