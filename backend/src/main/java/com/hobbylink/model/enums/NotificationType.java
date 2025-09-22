@@ -1,0 +1,13 @@
+package com.hobbylink.model.enums;
+
+public enum NotificationType {
+    MEETUP_INVITATION,
+    MEETUP_REMINDER,
+    MEETUP_CANCELLED,
+    MEETUP_UPDATED,
+    NEW_CHAT_MESSAGE,
+    NEW_PARTICIPANT,
+    PARTICIPANT_LEFT,
+    RATING_RECEIVED,
+    SYSTEM_ANNOUNCEMENT
+}

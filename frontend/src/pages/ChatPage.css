@@ -1,0 +1,174 @@
+/* ChatPage.css */
+.chat-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+.chat-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #eaeaea;
+}
+
+.meetup-info {
+    flex: 1;
+}
+
+.meetup-info h1 {
+    font-size: 2.2rem;
+    margin-bottom: 1rem;
+    color: #333;
+    font-weight: 700;
+}
+
+.meetup-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.5rem;
+    color: #666;
+    font-size: 1rem;
+}
+
+.meetup-date,
+.meetup-location,
+.meetup-participants {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.meetup-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.chat-container {
+    height: 70vh;
+    max-height: 800px;
+}
+
+.login-required {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    background-color: #f8f9fa;
+    border-radius: 12px;
+    padding: 3rem;
+    text-align: center;
+}
+
+.login-required p {
+    margin-bottom: 1.5rem;
+    font-size: 1.2rem;
+    color: #666;
+}
+
+/* 버튼 스타일 */
+.btn {
+    padding: 0.9rem 1.8rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 1.05rem;
+    text-align: center;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #6e8efb 0%, #a777e3 100%);
+    color: white;
+    box-shadow: 0 4px 10px rgba(110, 142, 251, 0.3);
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #5d7df9 0%, #9a68e0 100%);
+    box-shadow: 0 6px 15px rgba(110, 142, 251, 0.4);
+    transform: translateY(-2px);
+}
+
+.btn-outline {
+    background-color: transparent;
+    border: 2px solid #6e8efb;
+    color: #6e8efb;
+}
+
+.btn-outline:hover {
+    background-color: rgba(110, 142, 251, 0.05);
+    border-color: #a777e3;
+    color: #a777e3;
+    transform: translateY(-2px);
+}
+
+/* 로딩 및 오류 상태 */
+.loading-spinner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 300px;
+    font-size: 1.2rem;
+    color: #666;
+}
+
+.error-message {
+    text-align: center;
+    padding: 3rem;
+    background-color: #fff3f3;
+    border-radius: 12px;
+    color: #e74c3c;
+    margin: 2rem 0;
+}
+
+.error-message p {
+    margin-bottom: 1.5rem;
+    font-size: 1.1rem;
+}
+
+/* 반응형 스타일 */
+@media (max-width: 768px) {
+    .chat-page-header {
+        flex-direction: column;
+    }
+    
+    .meetup-info h1 {
+        font-size: 1.8rem;
+    }
+    
+    .meetup-actions {
+        margin-top: 1.5rem;
+    }
+    
+    .chat-container {
+        height: 60vh;
+    }
+    
+    .btn {
+        padding: 0.8rem 1.5rem;
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .meetup-info h1 {
+        font-size: 1.5rem;
+    }
+    
+    .meetup-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.8rem;
+    }
+    
+    .login-required {
+        padding: 2rem 1rem;
+    }
+}
