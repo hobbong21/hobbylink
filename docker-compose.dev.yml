@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: hobbylink-backend-dev
+    ports:
+      - "8081:8081"
+      - "5005:5005"  # 디버깅 포트
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - JAVA_OPTS=-Xmx512m -Xms256m -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+    networks:
+      - hobbylink-network
+    volumes:
+      - ./backend/src:/app/src
+      - ./backend/target:/app/target
+      - backend-dev-logs:/app/logs
+    restart: unless-stopped
+
+  frontend:
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: hobbylink-frontend-dev
+    ports:
+      - "3000:3000"
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - REACT_APP_API_URL=http://localhost:8081
+    networks:
+      - hobbylink-network
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
+      - /app/node_modules
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+
+networks:
+  hobbylink-network:
+    driver: bridge
+    name: hobbylink-network-dev
+
+volumes:
+  backend-dev-logs:
+    name: hobbylink-backend-dev-logs
