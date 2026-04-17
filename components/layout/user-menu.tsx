@@ -23,6 +23,7 @@ import {
   Mail,
   Trophy,
   Gift,
+  Home,
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 
@@ -74,6 +75,11 @@ export function UserMenu({
           )}
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
+        <DropdownMenuItem asChild>
+          <Link href="/home">
+            <Home aria-hidden="true" className="w-4 h-4 mr-2" />내 홈
+          </Link>
+        </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link href="/profile">
             <User aria-hidden="true" className="w-4 h-4 mr-2" />내 프로필

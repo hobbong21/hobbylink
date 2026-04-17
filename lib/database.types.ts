@@ -32,6 +32,7 @@ export interface Database {
           referral_code: string
           last_active_at: string | null
           visibility: "public" | "connections" | "private"
+          language: "ko" | "en"
           created_at: string
           updated_at: string
         }
@@ -47,6 +48,7 @@ export interface Database {
           referral_code?: string
           last_active_at?: string | null
           visibility?: "public" | "connections" | "private"
+          language?: "ko" | "en"
           created_at?: string
           updated_at?: string
         }
@@ -106,6 +108,19 @@ export interface Database {
           updated_at?: string
         }
         Update: Partial<Database["public"]["Tables"]["matches"]["Insert"]>
+      }
+      thread_read_state: {
+        Row: {
+          user_id: string
+          peer_id: string
+          last_read_at: string
+        }
+        Insert: {
+          user_id: string
+          peer_id: string
+          last_read_at?: string
+        }
+        Update: Partial<Database["public"]["Tables"]["thread_read_state"]["Insert"]>
       }
       messages: {
         Row: {

@@ -1,3 +1,4 @@
+import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import Image from "next/image"
 import { createClient } from "@/lib/supabase/server"
@@ -18,6 +19,30 @@ import type { Tables } from "@/lib/database.types"
 
 interface EventDetailProps {
   params: Promise<{ id: string }>
+}
+
+export async function generateMetadata({
+  params,
+}: EventDetailProps): Promise<Metadata> {
+  const { id } = await params
+  const supabase = await createClient()
+  const { data: event } = await supabase
+    .from("events")
+    .select("title, description")
+    .eq("id", id)
+    .maybeSingle()
+  if (!event) return {}
+
+  const desc = event.description?.slice(0, 140) ?? "HobbyLink 오프라인 모임"
+  return {
+    title: event.title,
+    description: desc,
+    openGraph: {
+      title: event.title,
+      description: desc,
+      type: "article",
+    },
+  }
 }
 
 export default async function EventDetailPage({ params }: EventDetailProps) {
@@ -87,7 +112,21 @@ export default async function EventDetailPage({ params }: EventDetailProps) {
           <CardHeader>
             <div className="flex items-start justify-between gap-3">
               <CardTitle className="text-2xl md:text-3xl">{e.title}</CardTitle>
-              {e.hobbies?.category && <Badge variant="secondary">{e.hobbies.category}</Badge>}
+              <div className="flex flex-wrap gap-1">
+                {e.hobbies?.category && (
+                  <Badge variant="secondary">{e.hobbies.category}</Badge>
+                )}
+                {e.recurrence_frequency && (
+                  <Badge variant="outline">
+                    {e.recurrence_frequency === "weekly"
+                      ? "매주"
+                      : e.recurrence_frequency === "biweekly"
+                        ? "격주"
+                        : "매월"}{" "}
+                    반복
+                  </Badge>
+                )}
+              </div>
             </div>
             {e.profiles?.display_name && (
               <p className="text-sm text-muted-foreground">
@@ -162,7 +201,10 @@ export default async function EventDetailPage({ params }: EventDetailProps) {
               {user?.id === e.organizer_id && (
                 <div className="ml-auto flex items-center gap-1">
                   <InviteButton eventId={e.id} />
-                  <CancelEventButton eventId={e.id} />
+                  <CancelEventButton
+                    eventId={e.id}
+                    isSeriesInstance={!!e.series_id}
+                  />
                 </div>
               )}
             </div>

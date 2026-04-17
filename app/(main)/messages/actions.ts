@@ -99,12 +99,22 @@ export async function markThreadRead(peerId: string) {
   } = await supabase.auth.getUser()
   if (!user) return { ok: false }
 
-  await supabase
-    .from("messages")
-    .update({ is_read: true })
-    .eq("receiver_id", user.id)
-    .eq("sender_id", peerId)
-    .eq("is_read", false)
+  await Promise.all([
+    supabase
+      .from("messages")
+      .update({ is_read: true })
+      .eq("receiver_id", user.id)
+      .eq("sender_id", peerId)
+      .eq("is_read", false),
+    supabase.from("thread_read_state").upsert(
+      {
+        user_id: user.id,
+        peer_id: peerId,
+        last_read_at: new Date().toISOString(),
+      },
+      { onConflict: "user_id,peer_id" },
+    ),
+  ])
 
   revalidatePath("/messages")
   return { ok: true }

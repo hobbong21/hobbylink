@@ -25,6 +25,16 @@ export default async function ThreadPage({ params }: ThreadPageProps) {
   const { messages, peer } = await getThread(user.id, peerId)
   if (!peer) notFound()
 
+  // Grab the previous read marker *before* we advance it so the client can
+  // draw a "read up to here" divider.
+  const { data: prevReadRow } = await supabase
+    .from("thread_read_state")
+    .select("last_read_at")
+    .eq("user_id", user.id)
+    .eq("peer_id", peerId)
+    .maybeSingle()
+  const previousReadAt = prevReadRow?.last_read_at ?? null
+
   await markThreadRead(peerId)
 
   // Premium perk: read receipts. Free users can still *mark* messages read but
@@ -67,6 +77,7 @@ export default async function ThreadPage({ params }: ThreadPageProps) {
                 image_url: m.image_url,
               }))}
               showReadReceipts={showReadReceipts}
+              previousReadAt={previousReadAt}
             />
           </CardContent>
         </Card>

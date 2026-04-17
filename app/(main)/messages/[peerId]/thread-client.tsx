@@ -22,6 +22,8 @@ interface ThreadClientProps {
   peerId: string
   initialMessages: ThreadMessage[]
   showReadReceipts?: boolean
+  /** ISO string of the previous read marker, used to draw the divider. */
+  previousReadAt?: string | null
 }
 
 export function ThreadClient({
@@ -29,6 +31,7 @@ export function ThreadClient({
   peerId,
   initialMessages,
   showReadReceipts = false,
+  previousReadAt = null,
 }: ThreadClientProps) {
   const [messages, setMessages] = useState<ThreadMessage[]>(initialMessages)
   const [draft, setDraft] = useState("")
@@ -163,13 +166,30 @@ export function ThreadClient({
             첫 메시지를 보내보세요.
           </p>
         ) : (
-          messages.map((m) => {
+          messages.map((m, idx) => {
             const mine = m.sender_id === currentUserId
+            // Divider shows once, right before the first message the caller
+            // hadn't read last time they opened the thread.
+            const showDivider =
+              previousReadAt &&
+              !mine &&
+              m.created_at > previousReadAt &&
+              (idx === 0 ||
+                !(messages[idx - 1] &&
+                  messages[idx - 1].created_at > previousReadAt))
             return (
-              <div
-                key={m.id}
-                className={mine ? "flex justify-end" : "flex justify-start"}
-              >
+              <div key={m.id}>
+                {showDivider && (
+                  <div
+                    className="flex items-center gap-2 my-2 text-[10px] uppercase tracking-wide text-muted-foreground"
+                    role="separator"
+                  >
+                    <span className="flex-1 h-px bg-border" />
+                    <span>여기까지 읽었어요</span>
+                    <span className="flex-1 h-px bg-border" />
+                  </div>
+                )}
+                <div className={mine ? "flex justify-end" : "flex justify-start"}>
                 <div
                   className={
                     mine
@@ -217,6 +237,7 @@ export function ThreadClient({
                       </span>
                     )}
                   </div>
+                </div>
                 </div>
               </div>
             )

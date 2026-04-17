@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
 import { rateLimit } from "@/lib/rate-limit"
 import { sendEmail } from "@/lib/email/send"
-import { newMatchEmail } from "@/lib/email/templates"
+import { pickMatchEmail, type EmailLocale } from "@/lib/email/pick"
 import { sendPushToUser } from "@/lib/push/send"
 
 export type MatchAction = "like" | "pass"
@@ -161,25 +161,47 @@ async function notifyMutualMatch(userAId: string, userBId: string) {
     const [a, b, profA, profB] = await Promise.all([
       admin.auth.admin.getUserById(userAId),
       admin.auth.admin.getUserById(userBId),
-      admin.from("profiles").select("display_name").eq("id", userAId).single(),
-      admin.from("profiles").select("display_name").eq("id", userBId).single(),
+      admin
+        .from("profiles")
+        .select("display_name, language")
+        .eq("id", userAId)
+        .single(),
+      admin
+        .from("profiles")
+        .select("display_name, language")
+        .eq("id", userBId)
+        .single(),
     ])
 
     const emailA = a.data?.user?.email
     const emailB = b.data?.user?.email
+    const localeA = (profA.data?.language as EmailLocale) ?? "ko"
+    const localeB = (profB.data?.language as EmailLocale) ?? "ko"
     if (emailA && profB.data?.display_name) {
-      const tpl = newMatchEmail({ peerName: profB.data.display_name, siteUrl })
+      const tpl = pickMatchEmail(localeA, {
+        peerName: profB.data.display_name,
+        siteUrl,
+      })
       await sendEmail({
         to: emailA,
-        subject: `${profB.data.display_name}님과 매칭되었어요`,
+        subject:
+          localeA === "en"
+            ? `You matched with ${profB.data.display_name}`
+            : `${profB.data.display_name}님과 매칭되었어요`,
         ...tpl,
       })
     }
     if (emailB && profA.data?.display_name) {
-      const tpl = newMatchEmail({ peerName: profA.data.display_name, siteUrl })
+      const tpl = pickMatchEmail(localeB, {
+        peerName: profA.data.display_name,
+        siteUrl,
+      })
       await sendEmail({
         to: emailB,
-        subject: `${profA.data.display_name}님과 매칭되었어요`,
+        subject:
+          localeB === "en"
+            ? `You matched with ${profA.data.display_name}`
+            : `${profA.data.display_name}님과 매칭되었어요`,
         ...tpl,
       })
     }

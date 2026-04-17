@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Search as SearchIcon, Calendar, Users } from "lucide-react"
+import { highlight } from "@/lib/highlight"
 import type { Tables } from "@/lib/database.types"
 
 interface SearchPageProps {
@@ -62,7 +63,13 @@ async function runSearch(
   const like = `%${query.replace(/[%_]/g, (m) => `\\${m}`)}%`
   const tagName = query.startsWith("#") ? query.slice(1).toLowerCase() : null
 
-  const [hobbies, events, profiles, tag] = await Promise.all([
+  // Find the caller so we can filter out anyone they've blocked (or who has
+  // blocked them).
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  const [hobbies, events, profiles, tag, myBlocks, blockedBy] = await Promise.all([
     supabase
       .from("hobbies")
       .select("*")
@@ -79,18 +86,35 @@ async function runSearch(
       .from("profiles")
       .select("id, display_name, avatar_url, bio, is_suspended")
       .or(`display_name.ilike.${like},bio.ilike.${like}`)
-      .limit(10),
+      .limit(20),
     tagName
       ? supabase.from("tags").select("id, name").eq("name", tagName).maybeSingle()
       : Promise.resolve({ data: null }),
+    user
+      ? supabase.from("user_blocks").select("blocked_id").eq("blocker_id", user.id)
+      : Promise.resolve({ data: [] as { blocked_id: string }[] }),
+    user
+      ? supabase.from("user_blocks").select("blocker_id").eq("blocked_id", user.id)
+      : Promise.resolve({ data: [] as { blocker_id: string }[] }),
+  ])
+
+  const blocked = new Set<string>([
+    ...((myBlocks.data ?? []) as { blocked_id: string }[]).map((r) => r.blocked_id),
+    ...((blockedBy.data ?? []) as { blocker_id: string }[]).map((r) => r.blocker_id),
   ])
 
   return {
     hobbies: (hobbies.data ?? []) as Tables<"hobbies">[],
-    events: (events.data ?? []) as Tables<"events">[],
-    profiles: ((profiles.data ?? []) as Array<
-      Pick<Tables<"profiles">, "id" | "display_name" | "avatar_url" | "bio" | "is_suspended">
-    >).filter((p) => !p.is_suspended),
+    events: ((events.data ?? []) as Tables<"events">[]).filter(
+      (e) => !blocked.has(e.organizer_id),
+    ),
+    profiles: (
+      (profiles.data ?? []) as Array<
+        Pick<Tables<"profiles">, "id" | "display_name" | "avatar_url" | "bio" | "is_suspended">
+      >
+    )
+      .filter((p) => !p.is_suspended && !blocked.has(p.id))
+      .slice(0, 10),
     tag: tag.data,
   }
 }
@@ -163,7 +187,7 @@ function SearchResults({
                 className="flex items-center justify-between py-3 gap-3 hover:bg-muted/40 px-2 rounded transition-colors"
               >
                 <div className="min-w-0">
-                  <p className="font-medium truncate">{e.title}</p>
+                  <p className="font-medium truncate">{highlight(e.title, query)}</p>
                   <div className="flex gap-3 text-xs text-muted-foreground mt-1">
                     <span className="flex items-center gap-1">
                       <Calendar aria-hidden="true" className="w-3 h-3" />
@@ -213,9 +237,13 @@ function SearchResults({
                   )}
                 </div>
                 <div className="min-w-0">
-                  <p className="font-medium truncate">{p.display_name}</p>
+                  <p className="font-medium truncate">
+                    {highlight(p.display_name, query)}
+                  </p>
                   {p.bio && (
-                    <p className="text-sm text-muted-foreground truncate">{p.bio}</p>
+                    <p className="text-sm text-muted-foreground truncate">
+                      {highlight(p.bio, query)}
+                    </p>
                   )}
                 </div>
               </Link>

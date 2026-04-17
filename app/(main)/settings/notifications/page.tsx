@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { NotificationPrefsForm } from "./prefs-form"
 import { EnablePushButton } from "./enable-push-button"
+import { TestSoundButton } from "./test-sound-button"
 import type { Tables } from "@/lib/database.types"
 
 export default async function NotificationPrefsPage() {
@@ -46,6 +47,10 @@ export default async function NotificationPrefsPage() {
                 vibrate: data?.vibrate ?? false,
               }}
             />
+            <div className="pt-4 border-t">
+              <p className="text-sm font-medium mb-2">사운드 미리 듣기</p>
+              <TestSoundButton />
+            </div>
             <div className="pt-4 border-t">
               <p className="text-sm font-medium mb-1">브라우저 푸시 알림</p>
               <p className="text-xs text-muted-foreground mb-3">

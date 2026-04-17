@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Search } from "lucide-react"
+import { highlight } from "@/lib/highlight"
 import type { Tables } from "@/lib/database.types"
 
 interface MessagesSearchPageProps {
@@ -113,7 +114,7 @@ export default async function MessagesSearchPage({ searchParams }: MessagesSearc
                           </time>
                         </div>
                         <p className="text-sm text-muted-foreground line-clamp-2">
-                          {m.content}
+                          {highlight(m.content, query)}
                         </p>
                       </div>
                     </Link>

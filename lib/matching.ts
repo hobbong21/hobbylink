@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server"
+import { isFlagEnabled } from "@/lib/feature-flags"
 import type { Tables } from "@/lib/database.types"
 
 export interface Candidate {
@@ -100,6 +101,12 @@ export async function getMatchCandidates(
     .maybeSingle()
   const myLocation = myProfile?.location?.toLowerCase().trim() ?? ""
 
+  // A/B test: `matching_v2_recency_boost` gives a small bonus to users who
+  // have been active in the past 48h, aiming to surface livelier profiles.
+  // Enrolled at the user level via `is_flag_enabled`.
+  const useRecencyBoost = await isFlagEnabled("matching_v2_recency_boost")
+  const now = Date.now()
+
   const totalMy = myHobbyIds.length
   const candidates: Candidate[] = (profiles ?? [])
     .filter((p: Tables<"profiles">) => !p.is_suspended)
@@ -107,13 +114,19 @@ export async function getMatchCandidates(
       const common = overlap.get(p.id) ?? 0
       const overlapScore = Math.min(100, Math.round((common / totalMy) * 100))
 
-      // Location bonus: exact match +10, same first-token (예: 서울) +5.
       let locationBonus = 0
       const theirs = p.location?.toLowerCase().trim() ?? ""
       if (myLocation && theirs) {
         if (theirs === myLocation) locationBonus = 10
         else if (theirs.split(/\s+/)[0] === myLocation.split(/\s+/)[0])
           locationBonus = 5
+      }
+
+      let recencyBonus = 0
+      if (useRecencyBoost && p.last_active_at) {
+        const delta = now - new Date(p.last_active_at).getTime()
+        if (delta <= 48 * 60 * 60_000) recencyBonus = 8
+        else if (delta <= 7 * 24 * 60 * 60_000) recencyBonus = 3
       }
 
       return {
@@ -124,7 +137,7 @@ export async function getMatchCandidates(
         location: p.location,
         interests: hobbiesByUser.get(p.id) ?? [],
         common_interests: common,
-        match_score: Math.min(100, overlapScore + locationBonus),
+        match_score: Math.min(100, overlapScore + locationBonus + recencyBonus),
       }
     })
 
