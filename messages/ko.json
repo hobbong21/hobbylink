@@ -1,0 +1,25 @@
+{
+  "common": {
+    "signup": "회원가입",
+    "login": "로그인",
+    "logout": "로그아웃",
+    "save": "저장",
+    "cancel": "취소",
+    "search": "검색"
+  },
+  "nav": {
+    "explore": "탐색",
+    "matching": "매칭",
+    "community": "커뮤니티",
+    "messages": "메시지",
+    "profile": "프로필",
+    "events": "모임"
+  },
+  "home": {
+    "hero.badge": "취미로 연결되는 새로운 세상",
+    "hero.title": "새로운 관심사, 새로운 연결",
+    "hero.description": "HobbyLink에서 당신의 취향에 꼭 맞는 취미를 발견하고, 마음이 통하는 친구들을 만나보세요.",
+    "hero.start": "지금 시작하기",
+    "hero.learnMore": "자세히 알아보기"
+  }
+}

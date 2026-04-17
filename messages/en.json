@@ -1,0 +1,25 @@
+{
+  "common": {
+    "signup": "Sign up",
+    "login": "Log in",
+    "logout": "Log out",
+    "save": "Save",
+    "cancel": "Cancel",
+    "search": "Search"
+  },
+  "nav": {
+    "explore": "Explore",
+    "matching": "Matching",
+    "community": "Community",
+    "messages": "Messages",
+    "profile": "Profile",
+    "events": "Events"
+  },
+  "home": {
+    "hero.badge": "A new world connected by hobbies",
+    "hero.title": "New interests, new connections",
+    "hero.description": "Discover hobbies that fit your taste and meet friends who share your passion.",
+    "hero.start": "Get started",
+    "hero.learnMore": "Learn more"
+  }
+}

@@ -3,6 +3,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Mail } from "lucide-react"
+import { ResendVerificationButton } from "./resend-button"
 
 export default function SignupSuccessPage() {
   return (
@@ -28,12 +29,13 @@ export default function SignupSuccessPage() {
             <p className="text-center text-muted-foreground">
               입력하신 이메일 주소로 확인 링크를 보내드렸습니다. 이메일의 링크를 클릭하여 계정을 활성화해주세요.
             </p>
-            <div className="p-4 bg-muted rounded-lg">
+            <div className="p-4 bg-muted rounded-lg space-y-3">
               <p className="text-sm text-muted-foreground">
                 <strong>이메일이 보이지 않나요?</strong>
                 <br />
-                스팸 폴더를 확인하거나 몇 분 후 다시 시도해주세요.
+                스팸 폴더를 확인하거나 아래에서 재발송할 수 있습니다.
               </p>
+              <ResendVerificationButton />
             </div>
             <Button asChild className="w-full h-11">
               <Link href="/login">로그인 페이지로 이동</Link>
