@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/select"
 import { createEvent } from "../actions"
 import { LocationPicker } from "@/components/kakao-map/location-picker"
+import { PlacesAutocomplete } from "@/components/kakao-map/places-autocomplete"
 
 interface CreateEventFormProps {
   hobbies: { id: string; name: string; category: string }[]
@@ -23,6 +24,10 @@ interface CreateEventFormProps {
 export function CreateEventForm({ hobbies }: CreateEventFormProps) {
   const [error, setError] = useState<string | null>(null)
   const [hobbyId, setHobbyId] = useState<string>("")
+  const [locationName, setLocationName] = useState("")
+  const [locationAddress, setLocationAddress] = useState("")
+  const [locationLat, setLocationLat] = useState<number | null>(null)
+  const [locationLng, setLocationLng] = useState<number | null>(null)
   const [isPending, startTransition] = useTransition()
   const router = useRouter()
 
@@ -82,24 +87,73 @@ export function CreateEventForm({ hobbies }: CreateEventFormProps) {
         </div>
       </div>
 
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="recurrence_frequency">반복 (선택)</Label>
+          <select
+            id="recurrence_frequency"
+            name="recurrence_frequency"
+            defaultValue=""
+            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+          >
+            <option value="">반복 안 함</option>
+            <option value="weekly">매주</option>
+            <option value="biweekly">격주</option>
+            <option value="monthly">매월</option>
+          </select>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="recurrence_count">반복 횟수 (최대 20)</Label>
+          <Input
+            id="recurrence_count"
+            name="recurrence_count"
+            type="number"
+            min={1}
+            max={20}
+            defaultValue={1}
+            placeholder="1"
+          />
+        </div>
+      </div>
+
       <div className="space-y-2">
         <Label htmlFor="location">장소 이름</Label>
+        <PlacesAutocomplete
+          placeholder="예: 홍대 보드게임 카페"
+          onPick={(place) => {
+            setLocationName(place.name)
+            setLocationAddress(place.address)
+            setLocationLat(place.lat || null)
+            setLocationLng(place.lng || null)
+          }}
+        />
         <Input
           id="location"
           name="location"
           maxLength={200}
-          placeholder="예: 홍대 보드게임 카페"
+          value={locationName}
+          onChange={(e) => setLocationName(e.target.value)}
+          placeholder="수동 입력도 가능"
         />
+        <input type="hidden" name="location_address" value={locationAddress} />
+        {locationLat !== null && locationLng !== null && (
+          <>
+            <input type="hidden" name="latitude" value={locationLat} />
+            <input type="hidden" name="longitude" value={locationLng} />
+          </>
+        )}
       </div>
 
-      <div className="space-y-2">
-        <Label>지도에서 위치 선택 (선택)</Label>
-        <LocationPicker
-          latName="latitude"
-          lngName="longitude"
-          addressName="location_address"
-        />
-      </div>
+      {locationLat === null && (
+        <div className="space-y-2">
+          <Label>지도에서 위치 선택 (선택)</Label>
+          <LocationPicker
+            latName="latitude"
+            lngName="longitude"
+            addressName="location_address"
+          />
+        </div>
+      )}
 
       <div className="space-y-2">
         <Label htmlFor="hobby_id">관련 취미 (선택)</Label>

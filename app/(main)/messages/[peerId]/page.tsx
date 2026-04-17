@@ -64,6 +64,7 @@ export default async function ThreadPage({ params }: ThreadPageProps) {
                 content: m.content,
                 created_at: m.created_at,
                 is_read: m.is_read,
+                image_url: m.image_url,
               }))}
               showReadReceipts={showReadReceipts}
             />

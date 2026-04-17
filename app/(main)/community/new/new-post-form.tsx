@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, useState, useTransition } from "react"
+import { useEffect, useRef, useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
@@ -8,15 +8,22 @@ import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { Image as ImageIcon, X } from "lucide-react"
 import { extractHashtags } from "@/lib/tags"
+import { HashtagSuggestions } from "@/components/tags/hashtag-suggestions"
 import { createPost } from "../actions"
+import { saveDraft, clearDraft } from "../draft-actions"
 import { createClient } from "@/lib/supabase/client"
 import { track } from "@/lib/analytics/client"
 
 const MAX_SIZE = 5 * 1024 * 1024 // 5 MB
 const ALLOWED = ["image/jpeg", "image/png", "image/webp"]
 
-export function NewPostForm() {
-  const [content, setContent] = useState("")
+interface NewPostFormProps {
+  initialContent?: string
+}
+
+export function NewPostForm({ initialContent = "" }: NewPostFormProps) {
+  const [content, setContent] = useState(initialContent)
+  const [savedHint, setSavedHint] = useState<string>("")
   const [imageUrl, setImageUrl] = useState<string | null>(null)
   const [imagePath, setImagePath] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -26,6 +33,24 @@ export function NewPostForm() {
   const router = useRouter()
 
   const previewTags = extractHashtags(content)
+
+  // Debounced auto-save: after 1.2s of inactivity, persist the draft.
+  useEffect(() => {
+    if (content.length === 0) return
+    const t = window.setTimeout(() => {
+      void saveDraft(content).then((r) => {
+        if (r.ok) {
+          setSavedHint(
+            new Date().toLocaleTimeString("ko-KR", {
+              hour: "2-digit",
+              minute: "2-digit",
+            }) + " 저장됨",
+          )
+        }
+      })
+    }, 1200)
+    return () => window.clearTimeout(t)
+  }, [content])
 
   const onPick = () => fileRef.current?.click()
 
@@ -96,6 +121,7 @@ export function NewPostForm() {
         return
       }
       void track("post.created", { has_image: !!imageUrl, tag_count: previewTags.length })
+      void clearDraft()
       router.push(`/community/${result.id}`)
       router.refresh()
     })
@@ -112,7 +138,14 @@ export function NewPostForm() {
         aria-label="게시글 내용"
       />
       <div className="flex items-center justify-between text-xs text-muted-foreground">
-        <span>{content.length} / 5000</span>
+        <span className="flex items-center gap-2">
+          {content.length} / 5000
+          {savedHint && (
+            <span aria-live="polite" className="text-[10px] opacity-70">
+              · {savedHint}
+            </span>
+          )}
+        </span>
         {previewTags.length > 0 && (
           <div className="flex flex-wrap gap-1">
             {previewTags.map((t) => (
@@ -123,6 +156,19 @@ export function NewPostForm() {
           </div>
         )}
       </div>
+
+      <HashtagSuggestions
+        content={content}
+        onInsert={(name) => {
+          // Replace the trailing hashtag token with the selected one + a space.
+          setContent((prev) =>
+            prev.replace(/(?:^|\s)#([\p{L}\p{N}_-]{1,40})$/u, (m) => {
+              const leadingSpace = m.startsWith(" ") ? " " : ""
+              return `${leadingSpace}#${name} `
+            }),
+          )
+        }}
+      />
 
       <input
         ref={fileRef}

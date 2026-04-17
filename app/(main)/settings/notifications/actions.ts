@@ -9,6 +9,8 @@ const PrefsSchema = z.object({
   email_on_new_message: z.boolean(),
   email_on_event_reminder: z.boolean(),
   inapp_on_follow: z.boolean(),
+  play_sound: z.boolean(),
+  vibrate: z.boolean(),
 })
 
 export type PrefsInput = z.infer<typeof PrefsSchema>

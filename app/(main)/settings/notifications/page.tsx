@@ -42,6 +42,8 @@ export default async function NotificationPrefsPage() {
                 email_on_new_message: data?.email_on_new_message ?? false,
                 email_on_event_reminder: data?.email_on_event_reminder ?? true,
                 inapp_on_follow: data?.inapp_on_follow ?? true,
+                play_sound: data?.play_sound ?? true,
+                vibrate: data?.vibrate ?? false,
               }}
             />
             <div className="pt-4 border-t">

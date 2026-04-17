@@ -5,10 +5,32 @@ import { revalidatePath } from "next/cache"
 import { z } from "zod"
 import { rateLimit } from "@/lib/rate-limit"
 
-const SendSchema = z.object({
-  receiver_id: z.string().uuid(),
-  content: z.string().trim().min(1, "메시지를 입력하세요").max(2000),
-})
+const SendSchema = z
+  .object({
+    receiver_id: z.string().uuid(),
+    content: z.string().trim().max(2000).optional().default(""),
+    image_url: z
+      .string()
+      .url()
+      .refine(
+        (url) => {
+          const base = process.env.NEXT_PUBLIC_SUPABASE_URL
+          if (!base) return false
+          try {
+            return new URL(url).origin === new URL(base).origin
+          } catch {
+            return false
+          }
+        },
+        { message: "올바른 이미지 URL이 아닙니다" },
+      )
+      .optional()
+      .nullable(),
+    image_path: z.string().trim().max(300).optional().nullable(),
+  })
+  .refine((v) => Boolean(v.content?.trim() || v.image_url), {
+    message: "메시지 내용이나 이미지 중 하나는 필요합니다",
+  })
 
 export type SendResult = { ok: true } | { ok: false; message: string }
 
@@ -28,9 +50,14 @@ export async function sendMessage(formData: FormData): Promise<SendResult> {
   const parsed = SendSchema.safeParse({
     receiver_id: formData.get("receiver_id"),
     content: formData.get("content"),
+    image_url: formData.get("image_url") || null,
+    image_path: formData.get("image_path") || null,
   })
   if (!parsed.success) {
-    return { ok: false, message: parsed.error.issues[0]?.message ?? "입력이 올바르지 않습니다" }
+    return {
+      ok: false,
+      message: parsed.error.issues[0]?.message ?? "입력이 올바르지 않습니다",
+    }
   }
 
   if (parsed.data.receiver_id === user.id) {
@@ -54,7 +81,9 @@ export async function sendMessage(formData: FormData): Promise<SendResult> {
   const { error } = await supabase.from("messages").insert({
     sender_id: user.id,
     receiver_id: parsed.data.receiver_id,
-    content: parsed.data.content,
+    content: parsed.data.content || "",
+    image_url: parsed.data.image_url ?? null,
+    image_path: parsed.data.image_path ?? null,
   })
   if (error) return { ok: false, message: error.message }
 

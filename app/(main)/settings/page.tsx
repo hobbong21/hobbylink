@@ -59,7 +59,14 @@ export default async function SettingsPage() {
                 className="bg-muted"
               />
               <p className="text-xs text-muted-foreground">
-                이메일 변경은 인증 메일을 통해 진행됩니다.
+                이메일 변경은{" "}
+                <Link
+                  href="/settings/email"
+                  className="text-primary underline"
+                >
+                  인증 메일
+                </Link>
+                을 통해 진행됩니다.
               </p>
             </div>
             <SettingsForm
@@ -89,9 +96,12 @@ export default async function SettingsPage() {
             <CardTitle>보안</CardTitle>
             <CardDescription>비밀번호 및 세션 관리</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="flex flex-wrap gap-2">
             <Button variant="outline" asChild>
               <Link href="/settings/password">비밀번호 변경</Link>
+            </Button>
+            <Button variant="outline" asChild>
+              <Link href="/settings/sessions">세션 관리</Link>
             </Button>
           </CardContent>
         </Card>
@@ -105,6 +115,9 @@ export default async function SettingsPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-wrap gap-2">
+            <Button variant="outline" asChild>
+              <Link href="/settings/privacy">프로필 공개 범위</Link>
+            </Button>
             <Button variant="outline" asChild>
               <Link href="/settings/blocks">차단 목록 관리</Link>
             </Button>

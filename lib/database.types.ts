@@ -31,6 +31,7 @@ export interface Database {
           suspended_until: string | null
           referral_code: string
           last_active_at: string | null
+          visibility: "public" | "connections" | "private"
           created_at: string
           updated_at: string
         }
@@ -45,6 +46,7 @@ export interface Database {
           suspended_until?: string | null
           referral_code?: string
           last_active_at?: string | null
+          visibility?: "public" | "connections" | "private"
           created_at?: string
           updated_at?: string
         }
@@ -111,6 +113,8 @@ export interface Database {
           sender_id: string
           receiver_id: string
           content: string
+          image_url: string | null
+          image_path: string | null
           is_read: boolean
           created_at: string
         }
@@ -119,6 +123,8 @@ export interface Database {
           sender_id: string
           receiver_id: string
           content: string
+          image_url?: string | null
+          image_path?: string | null
           is_read?: boolean
           created_at?: string
         }
@@ -147,6 +153,36 @@ export interface Database {
         }
         Update: Partial<Database["public"]["Tables"]["posts"]["Insert"]>
       }
+      post_drafts: {
+        Row: {
+          user_id: string
+          content: string
+          updated_at: string
+        }
+        Insert: {
+          user_id: string
+          content?: string
+          updated_at?: string
+        }
+        Update: Partial<Database["public"]["Tables"]["post_drafts"]["Insert"]>
+      }
+      post_reactions: {
+        Row: {
+          id: string
+          post_id: string
+          user_id: string
+          reaction: "like" | "love" | "laugh" | "wow" | "sad" | "clap"
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          post_id: string
+          user_id: string
+          reaction: "like" | "love" | "laugh" | "wow" | "sad" | "clap"
+          created_at?: string
+        }
+        Update: Partial<Database["public"]["Tables"]["post_reactions"]["Insert"]>
+      }
       post_likes: {
         Row: {
           id: string
@@ -168,6 +204,7 @@ export interface Database {
           post_id: string
           author_id: string
           content: string
+          parent_id: string | null
           created_at: string
         }
         Insert: {
@@ -175,6 +212,7 @@ export interface Database {
           post_id: string
           author_id: string
           content: string
+          parent_id?: string | null
           created_at?: string
         }
         Update: Partial<Database["public"]["Tables"]["comments"]["Insert"]>
@@ -194,6 +232,8 @@ export interface Database {
           max_participants: number | null
           current_participants: number
           image_url: string | null
+          series_id: string | null
+          recurrence_frequency: "weekly" | "biweekly" | "monthly" | null
           created_at: string
         }
         Insert: {
@@ -210,6 +250,8 @@ export interface Database {
           max_participants?: number | null
           current_participants?: number
           image_url?: string | null
+          series_id?: string | null
+          recurrence_frequency?: "weekly" | "biweekly" | "monthly" | null
           created_at?: string
         }
         Update: Partial<Database["public"]["Tables"]["events"]["Insert"]>
@@ -327,6 +369,8 @@ export interface Database {
           email_on_new_message: boolean
           email_on_event_reminder: boolean
           inapp_on_follow: boolean
+          play_sound: boolean
+          vibrate: boolean
           updated_at: string
         }
         Insert: {
@@ -335,6 +379,8 @@ export interface Database {
           email_on_new_message?: boolean
           email_on_event_reminder?: boolean
           inapp_on_follow?: boolean
+          play_sound?: boolean
+          vibrate?: boolean
           updated_at?: string
         }
         Update: Partial<Database["public"]["Tables"]["notification_prefs"]["Insert"]>
@@ -436,6 +482,25 @@ export interface Database {
           created_at?: string
         }
         Update: Partial<Database["public"]["Tables"]["event_messages"]["Insert"]>
+      }
+      feature_flags: {
+        Row: {
+          key: string
+          description: string | null
+          enabled: boolean
+          rollout_percent: number
+          allowlist: string[]
+          updated_at: string
+        }
+        Insert: {
+          key: string
+          description?: string | null
+          enabled?: boolean
+          rollout_percent?: number
+          allowlist?: string[]
+          updated_at?: string
+        }
+        Update: Partial<Database["public"]["Tables"]["feature_flags"]["Insert"]>
       }
       announcements: {
         Row: {

@@ -10,6 +10,8 @@ import { LikeButton } from "./like-button"
 import { ReportDialog } from "@/components/moderation/report-dialog"
 import { BookmarkButton } from "@/components/bookmark-button"
 import { PostOwnerActions } from "./owner-actions"
+import { ReactionsBar } from "./reactions-bar"
+import type { Reaction } from "./reaction-actions"
 import type { Tables } from "@/lib/database.types"
 
 interface PostPageProps {
@@ -40,8 +42,9 @@ export default async function PostPage({ params }: PostPageProps) {
   // Did the caller already like / bookmark this post?
   let initialLiked = false
   let initialSaved = false
+  let initialMineReactions: Reaction[] = []
   if (user) {
-    const [{ data: myLike }, { data: myBm }] = await Promise.all([
+    const [{ data: myLike }, { data: myBm }, { data: myReactions }] = await Promise.all([
       supabase
         .from("post_likes")
         .select("post_id")
@@ -55,9 +58,34 @@ export default async function PostPage({ params }: PostPageProps) {
         .eq("target_type", "post")
         .eq("target_id", postId)
         .maybeSingle(),
+      supabase
+        .from("post_reactions")
+        .select("reaction")
+        .eq("post_id", postId)
+        .eq("user_id", user.id),
     ])
     initialLiked = !!myLike
     initialSaved = !!myBm
+    initialMineReactions = ((myReactions ?? []) as { reaction: Reaction }[]).map(
+      (r) => r.reaction,
+    )
+  }
+
+  // Reaction counts for everyone (public-ish for all authenticated).
+  const { data: reactionRows } = await supabase
+    .from("post_reactions")
+    .select("reaction")
+    .eq("post_id", postId)
+  const reactionCounts: Record<Reaction, number> = {
+    like: 0,
+    love: 0,
+    laugh: 0,
+    wow: 0,
+    sad: 0,
+    clap: 0,
+  }
+  for (const r of ((reactionRows ?? []) as { reaction: Reaction }[])) {
+    reactionCounts[r.reaction] = (reactionCounts[r.reaction] ?? 0) + 1
   }
 
   const { data: commentsData } = await supabase
@@ -118,26 +146,34 @@ export default async function PostPage({ params }: PostPageProps) {
                 />
               </div>
             )}
-            <div className="flex items-center gap-2 pt-2 border-t">
-              <LikeButton
+            <div className="pt-2 border-t space-y-2">
+              <ReactionsBar
                 postId={postId}
-                initialLiked={initialLiked}
-                initialCount={post.likes_count}
+                initialCounts={reactionCounts}
+                initialMine={initialMineReactions}
                 disabled={!user}
               />
-              {user && (
-                <BookmarkButton
-                  targetType="post"
-                  targetId={postId}
-                  initialSaved={initialSaved}
+              <div className="flex items-center gap-2">
+                <LikeButton
+                  postId={postId}
+                  initialLiked={initialLiked}
+                  initialCount={post.likes_count}
+                  disabled={!user}
                 />
-              )}
-              <ReportDialog targetType="post" targetId={postId} />
-              {user?.id === post.author_id && (
-                <div className="ml-auto">
-                  <PostOwnerActions postId={postId} />
-                </div>
-              )}
+                {user && (
+                  <BookmarkButton
+                    targetType="post"
+                    targetId={postId}
+                    initialSaved={initialSaved}
+                  />
+                )}
+                <ReportDialog targetType="post" targetId={postId} />
+                {user?.id === post.author_id && (
+                  <div className="ml-auto">
+                    <PostOwnerActions postId={postId} />
+                  </div>
+                )}
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -153,6 +189,7 @@ export default async function PostPage({ params }: PostPageProps) {
             author_id: c.author_id,
             author_display_name: c.profiles?.display_name ?? "사용자",
             author_avatar_url: c.profiles?.avatar_url ?? null,
+            parent_id: c.parent_id,
           }))}
         />
       </div>

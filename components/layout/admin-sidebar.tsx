@@ -13,12 +13,14 @@ import {
   Layers,
   BarChart3,
   Megaphone,
+  ToggleLeft,
 } from "lucide-react"
 
 const ADMIN_NAV = [
   { href: "/admin", label: "대시보드", icon: Activity, match: "exact" as const },
   { href: "/admin/analytics", label: "분석", icon: BarChart3, match: "prefix" as const },
   { href: "/admin/announcements", label: "공지사항", icon: Megaphone, match: "prefix" as const },
+  { href: "/admin/flags", label: "피처 플래그", icon: ToggleLeft, match: "prefix" as const },
   { href: "/admin/users", label: "사용자 관리", icon: Users, match: "prefix" as const },
   { href: "/admin/hobbies", label: "취미 관리", icon: Heart, match: "prefix" as const },
   { href: "/admin/posts", label: "게시글 관리", icon: MessageSquare, match: "prefix" as const },

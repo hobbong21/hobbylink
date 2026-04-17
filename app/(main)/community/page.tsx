@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { MessageCircle, TrendingUp, Users, Clock } from "lucide-react"
+import { WeeklyBest } from "@/components/community/weekly-best"
 import type { Tables } from "@/lib/database.types"
 
 export default async function CommunityPage() {
@@ -145,6 +146,8 @@ export default async function CommunityPage() {
             </div>
 
             <aside className="space-y-6">
+              <WeeklyBest />
+
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">

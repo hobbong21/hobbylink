@@ -53,6 +53,16 @@ export function NotificationPrefsForm({ initial }: NotificationPrefsFormProps) {
       title: "팔로우 인앱 알림",
       description: "누군가 나를 팔로우하면 알림 목록에 표시합니다",
     },
+    {
+      key: "play_sound",
+      title: "새 알림 사운드",
+      description: "인앱 알림이 도착하면 짧은 비프음을 재생합니다",
+    },
+    {
+      key: "vibrate",
+      title: "진동",
+      description: "모바일 브라우저에서 알림 도착 시 120ms 진동합니다",
+    },
   ]
 
   return (

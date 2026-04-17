@@ -1,11 +1,12 @@
 "use client"
 
+import Image from "next/image"
 import { useEffect, useRef, useState, useTransition } from "react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { createClient } from "@/lib/supabase/client"
 import { sendMessage } from "../actions"
-import { Send } from "lucide-react"
+import { Send, ImageIcon, X } from "lucide-react"
 
 interface ThreadMessage {
   id: string
@@ -13,6 +14,7 @@ interface ThreadMessage {
   content: string
   created_at: string
   is_read?: boolean
+  image_url?: string | null
 }
 
 interface ThreadClientProps {
@@ -30,6 +32,12 @@ export function ThreadClient({
 }: ThreadClientProps) {
   const [messages, setMessages] = useState<ThreadMessage[]>(initialMessages)
   const [draft, setDraft] = useState("")
+  const [attachment, setAttachment] = useState<{
+    url: string
+    path: string
+  } | null>(null)
+  const [isUploading, setIsUploading] = useState(false)
+  const fileRef = useRef<HTMLInputElement | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
   const scrollRef = useRef<HTMLDivElement | null>(null)
@@ -69,29 +77,75 @@ export function ThreadClient({
     }
   }, [currentUserId, peerId])
 
+  const onPickImage = () => fileRef.current?.click()
+
+  const onFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setError(null)
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      setError("JPG, PNG, WebP만 업로드할 수 있습니다.")
+      return
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setError("이미지는 5MB 이하여야 합니다.")
+      return
+    }
+    setIsUploading(true)
+    try {
+      const supabase = createClient()
+      const ext = file.name.split(".").pop()?.toLowerCase() ?? "jpg"
+      const path = `${currentUserId}/${Date.now()}.${ext}`
+      const { error: upErr } = await supabase.storage
+        .from("message-images")
+        .upload(path, file, { cacheControl: "3600", upsert: false })
+      if (upErr) throw upErr
+      const { data } = supabase.storage.from("message-images").getPublicUrl(path)
+      setAttachment({ url: data.publicUrl, path })
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "업로드 실패")
+    } finally {
+      setIsUploading(false)
+      if (fileRef.current) fileRef.current.value = ""
+    }
+  }
+
+  const removeAttachment = async () => {
+    if (!attachment) return
+    const supabase = createClient()
+    await supabase.storage.from("message-images").remove([attachment.path])
+    setAttachment(null)
+  }
+
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const content = draft.trim()
-    if (!content) return
+    if (!content && !attachment) return
 
     setError(null)
     const optimistic: ThreadMessage = {
       id: `optimistic-${Date.now()}`,
       sender_id: currentUserId,
       content,
+      image_url: attachment?.url ?? null,
       created_at: new Date().toISOString(),
     }
     setMessages((prev) => [...prev, optimistic])
+    const attached = attachment
     setDraft("")
+    setAttachment(null)
 
     startTransition(async () => {
       const fd = new FormData()
       fd.set("receiver_id", peerId)
       fd.set("content", content)
+      if (attached) {
+        fd.set("image_url", attached.url)
+        fd.set("image_path", attached.path)
+      }
       const result = await sendMessage(fd)
       if (!result.ok) {
         setError(result.message)
-        // Remove the optimistic message on failure
         setMessages((prev) => prev.filter((m) => m.id !== optimistic.id))
       }
     })
@@ -119,11 +173,31 @@ export function ThreadClient({
                 <div
                   className={
                     mine
-                      ? "max-w-[75%] rounded-2xl rounded-br-sm bg-primary text-primary-foreground px-4 py-2"
-                      : "max-w-[75%] rounded-2xl rounded-bl-sm bg-muted px-4 py-2"
+                      ? "max-w-[75%] rounded-2xl rounded-br-sm bg-primary text-primary-foreground px-4 py-2 space-y-2"
+                      : "max-w-[75%] rounded-2xl rounded-bl-sm bg-muted px-4 py-2 space-y-2"
                   }
                 >
-                  <p className="whitespace-pre-wrap break-words text-sm">{m.content}</p>
+                  {m.image_url && (
+                    <a
+                      href={m.image_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block relative w-full max-w-xs aspect-video rounded-md overflow-hidden bg-black/10"
+                    >
+                      <Image
+                        src={m.image_url}
+                        alt="첨부 이미지"
+                        fill
+                        className="object-cover"
+                        sizes="280px"
+                      />
+                    </a>
+                  )}
+                  {m.content && (
+                    <p className="whitespace-pre-wrap break-words text-sm">
+                      {m.content}
+                    </p>
+                  )}
                   <div
                     className={
                       mine
@@ -160,7 +234,48 @@ export function ThreadClient({
             {error}
           </div>
         )}
-        <div className="flex gap-2">
+
+        {attachment && (
+          <div className="relative w-24 h-24 rounded overflow-hidden bg-muted">
+            <Image
+              src={attachment.url}
+              alt="첨부 이미지 미리보기"
+              fill
+              className="object-cover"
+              sizes="96px"
+            />
+            <button
+              type="button"
+              onClick={removeAttachment}
+              className="absolute top-0.5 right-0.5 w-5 h-5 rounded-full bg-black/60 text-white flex items-center justify-center"
+              aria-label="첨부 제거"
+            >
+              <X aria-hidden="true" className="w-3 h-3" />
+            </button>
+          </div>
+        )}
+
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          className="hidden"
+          onChange={onFile}
+          aria-label="이미지 첨부"
+        />
+
+        <div className="flex gap-2 items-end">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={onPickImage}
+            disabled={isUploading || !!attachment}
+            aria-label="이미지 첨부"
+            className="flex-shrink-0"
+          >
+            <ImageIcon aria-hidden="true" className="w-4 h-4" />
+          </Button>
           <Textarea
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
@@ -176,7 +291,10 @@ export function ThreadClient({
             className="resize-none"
             aria-label="메시지 입력"
           />
-          <Button type="submit" disabled={isPending || !draft.trim()}>
+          <Button
+            type="submit"
+            disabled={isPending || (!draft.trim() && !attachment)}
+          >
             <Send aria-hidden="true" className="w-4 h-4" />
             <span className="sr-only">전송</span>
           </Button>
