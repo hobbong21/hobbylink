@@ -24,11 +24,15 @@ export async function registerPushSubscription(): Promise<{ ok: boolean; message
   }
 
   const reg = await navigator.serviceWorker.register("/sw.js")
+  // TS 5.7+ narrowed PushSubscriptionOptionsInit.applicationServerKey to
+  // BufferSource, and Uint8Array's generic buffer type doesn't always pass
+  // the check. Cast to BufferSource — the runtime contract is unchanged.
+  const applicationServerKey = urlBase64ToUint8Array(vapidKey) as unknown as BufferSource
   const sub =
     (await reg.pushManager.getSubscription()) ??
     (await reg.pushManager.subscribe({
       userVisibleOnly: true,
-      applicationServerKey: urlBase64ToUint8Array(vapidKey),
+      applicationServerKey,
     }))
 
   const res = await fetch("/api/push/subscribe", {

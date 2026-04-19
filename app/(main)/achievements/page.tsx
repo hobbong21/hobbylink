@@ -80,7 +80,10 @@ export default async function AchievementsPage() {
         <div className="grid sm:grid-cols-2 gap-3">
           {all.map((a) => {
             const gotIt = earned.has(a.code)
-            const Icon = (a.icon && ICONS[a.icon]) ?? Sparkles
+            // Explicit fallback so JSX sees a concrete component type rather
+            // than a possibly-undefined lookup.
+            const Icon: typeof Sparkles =
+              (a.icon && ICONS[a.icon]) || Sparkles
             return (
               <Card
                 key={a.code}
@@ -114,12 +117,4 @@ export default async function AchievementsPage() {
                   {gotIt
                     ? `획득: ${new Date(earned.get(a.code)!).toLocaleDateString("ko-KR")}`
                     : "아직 획득하지 않음"}
-                </CardContent>
-              </Card>
-            )
-          })}
-        </div>
-      </div>
-    </main>
-  )
-}
+           
