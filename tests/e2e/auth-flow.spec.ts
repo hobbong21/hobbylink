@@ -45,7 +45,11 @@ test.describe("Search dialog keyboard shortcut", () => {
     await expect(page.getByRole("dialog")).toBeVisible()
     await page.getByLabel("검색어").fill("등산")
     await page.keyboard.press("Enter")
-    await expect(page).toHaveURL(new RegExp(`${BASE.replace(/https?:\\/\\//, "")}?/search\\?q=`))
+    // Strip the protocol from BASE so the regex matches both localhost and
+    // a deployed host. `\/\//` — the slashes in a regex literal need a
+    // single backslash each; doubling them terminates the regex early.
+    const host = BASE.replace(/^https?:\/\//, "")
+    await expect(page).toHaveURL(new RegExp(`${host}/search\\?q=`))
   })
 })
 
