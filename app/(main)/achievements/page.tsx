@@ -117,4 +117,13 @@ export default async function AchievementsPage() {
                   {gotIt
                     ? `획득: ${new Date(earned.get(a.code)!).toLocaleDateString("ko-KR")}`
                     : "아직 획득하지 않음"}
+                </CardContent>
+              </Card>
+            )
+          })}
+        </div>
+      </div>
+    </main>
+  )
+}
            
