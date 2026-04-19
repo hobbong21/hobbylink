@@ -10,6 +10,8 @@ import { presenceLabel } from "@/lib/presence"
 import { ReportDialog } from "@/components/moderation/report-dialog"
 import { BlockButton } from "@/components/moderation/block-button"
 import { FollowButton } from "@/components/follow/follow-button"
+import { LevelBadge } from "@/components/profile/level-badge"
+import { VerifiedBadge } from "@/components/profile/verified-badge"
 import type { Tables } from "@/lib/database.types"
 
 interface ProfileDetailProps {
@@ -143,6 +145,8 @@ export default async function ProfileDetailPage({ params }: ProfileDetailProps) 
                 <div>
                   <h1 className="text-3xl font-bold flex items-center gap-2 flex-wrap">
                     {profile.display_name}
+                    {profile.phone_verified_at && <VerifiedBadge />}
+                    {profile.level > 1 && <LevelBadge level={profile.level} />}
                     {(() => {
                       const p = presenceLabel(profile.last_active_at)
                       return (

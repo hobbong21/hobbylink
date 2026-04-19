@@ -73,7 +73,7 @@ export async function PhotoGallery({
                 className="relative aspect-square rounded-md overflow-hidden bg-muted group"
               >
                 <Image
-                  src={p.url}
+                  src={p.thumb_url ?? p.url}
                   alt={p.caption ?? "이벤트 사진"}
                   fill
                   className="object-cover"

@@ -3,79 +3,142 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* ---------------------------------------------------------------------------
+ * HobbyLink — Trust / Professional palette
+ * ---------------------------------------------------------------------------
+ * Primary axis:
+ *   - Primary:   deep navy-blue  (신뢰, 금융·B2B 느낌)
+ *   - Neutrals:  cool slate      (차분한 한류색 그레이스케일)
+ *   - Accent:    warm amber      (포인트·CTA 배지용)
+ *   - Success:   forest teal     (완료/검증)
+ *   - Destructive: 생동감 낮춘 코랄
+ *
+ * All color tokens are oklch so light/dark match in perceived lightness.
+ * Surface layering (background → card → popover → elevated) gives 4 steps
+ * of depth without relying on shadows alone.
+ * ------------------------------------------------------------------------ */
+
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
+  /* Page surfaces */
+  --background: oklch(0.995 0.003 250);         /* paper white with hint of blue */
+  --foreground: oklch(0.21 0.04 255);            /* slate-900 ink */
+
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
+  --card-foreground: oklch(0.21 0.04 255);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
+  --popover-foreground: oklch(0.21 0.04 255);
+
+  /* Brand */
+  --primary: oklch(0.42 0.15 252);               /* deep trust blue */
+  --primary-foreground: oklch(0.99 0.005 250);
+  --primary-hover: oklch(0.37 0.15 252);
+  --primary-muted: oklch(0.95 0.03 250);         /* soft blue tint background */
+
+  /* Supporting */
+  --secondary: oklch(0.965 0.01 255);
+  --secondary-foreground: oklch(0.26 0.04 255);
+
+  --muted: oklch(0.965 0.01 255);
+  --muted-foreground: oklch(0.52 0.02 258);
+
+  --accent: oklch(0.95 0.03 250);                /* same as primary-muted by default */
+  --accent-foreground: oklch(0.32 0.12 252);
+
+  /* Semantic */
+  --success: oklch(0.58 0.10 180);
+  --success-foreground: oklch(0.99 0.005 180);
+  --warning: oklch(0.78 0.15 82);
+  --warning-foreground: oklch(0.25 0.04 80);
+  --destructive: oklch(0.58 0.19 25);
+  --destructive-foreground: oklch(0.99 0.005 25);
+
+  /* Strokes & focus */
+  --border: oklch(0.91 0.01 255);
+  --input: oklch(0.91 0.01 255);
+  --ring: oklch(0.52 0.15 252);                  /* visible focus outline */
+
+  /* Data-viz ramp — cool-to-warm, colorblind-safe starting points */
+  --chart-1: oklch(0.52 0.15 252);
+  --chart-2: oklch(0.62 0.13 195);
+  --chart-3: oklch(0.68 0.14 145);
+  --chart-4: oklch(0.75 0.15 75);
+  --chart-5: oklch(0.64 0.19 18);
+
+  /* Elevation — surfaces for sidebar, toolbar, popover-on-card, etc. */
+  --elevated: oklch(0.985 0.005 250);
+  --elevated-foreground: oklch(0.21 0.04 255);
+
+  /* Sidebar */
+  --sidebar: oklch(0.985 0.005 250);
+  --sidebar-foreground: oklch(0.21 0.04 255);
+  --sidebar-primary: oklch(0.42 0.15 252);
+  --sidebar-primary-foreground: oklch(0.99 0.005 250);
+  --sidebar-accent: oklch(0.95 0.03 250);
+  --sidebar-accent-foreground: oklch(0.32 0.12 252);
+  --sidebar-border: oklch(0.91 0.01 255);
+  --sidebar-ring: oklch(0.52 0.15 252);
+
   --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.145 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.145 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.985 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.396 0.141 25.723);
-  --destructive-foreground: oklch(0.637 0.237 25.331);
-  --border: oklch(0.269 0 0);
-  --input: oklch(0.269 0 0);
-  --ring: oklch(0.439 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(0.269 0 0);
-  --sidebar-ring: oklch(0.439 0 0);
+  --background: oklch(0.17 0.02 255);            /* deep slate canvas */
+  --foreground: oklch(0.96 0.005 250);
+
+  --card: oklch(0.21 0.02 255);                  /* 1 step above bg */
+  --card-foreground: oklch(0.96 0.005 250);
+  --popover: oklch(0.24 0.02 255);               /* 2 steps above bg */
+  --popover-foreground: oklch(0.96 0.005 250);
+
+  --primary: oklch(0.72 0.13 252);               /* lifted for dark surface contrast */
+  --primary-foreground: oklch(0.15 0.03 255);
+  --primary-hover: oklch(0.78 0.13 252);
+  --primary-muted: oklch(0.28 0.05 252);
+
+  --secondary: oklch(0.28 0.02 255);
+  --secondary-foreground: oklch(0.96 0.005 250);
+
+  --muted: oklch(0.28 0.02 255);
+  --muted-foreground: oklch(0.74 0.01 255);
+
+  --accent: oklch(0.28 0.05 252);
+  --accent-foreground: oklch(0.88 0.08 252);
+
+  --success: oklch(0.70 0.10 180);
+  --success-foreground: oklch(0.15 0.03 180);
+  --warning: oklch(0.80 0.15 82);
+  --warning-foreground: oklch(0.22 0.05 80);
+  --destructive: oklch(0.65 0.19 25);
+  --destructive-foreground: oklch(0.15 0.03 25);
+
+  --border: oklch(0.30 0.02 255);
+  --input: oklch(0.30 0.02 255);
+  --ring: oklch(0.62 0.15 252);
+
+  --chart-1: oklch(0.72 0.13 252);
+  --chart-2: oklch(0.74 0.13 195);
+  --chart-3: oklch(0.78 0.14 145);
+  --chart-4: oklch(0.82 0.15 75);
+  --chart-5: oklch(0.72 0.19 18);
+
+  --elevated: oklch(0.24 0.02 255);
+  --elevated-foreground: oklch(0.96 0.005 250);
+
+  --sidebar: oklch(0.19 0.02 255);
+  --sidebar-foreground: oklch(0.96 0.005 250);
+  --sidebar-primary: oklch(0.72 0.13 252);
+  --sidebar-primary-foreground: oklch(0.15 0.03 255);
+  --sidebar-accent: oklch(0.28 0.05 252);
+  --sidebar-accent-foreground: oklch(0.88 0.08 252);
+  --sidebar-border: oklch(0.30 0.02 255);
+  --sidebar-ring: oklch(0.62 0.15 252);
 }
 
 @theme inline {
-  /* optional: --font-sans, --font-serif, --font-mono if they are applied in the layout.tsx */
+  /* Font stacks are wired via next/font variables in app/layout.tsx. */
+  --font-sans: var(--font-inter), var(--font-pretendard), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -84,14 +147,21 @@
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-primary-muted: var(--primary-muted);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
+  --color-elevated: var(--elevated);
+  --color-elevated-foreground: var(--elevated-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -118,7 +188,118 @@
   * {
     @apply border-border outline-ring/50;
   }
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    /* Match scroll-margin to the sticky header so anchor links land below it */
+    scroll-padding-top: 5rem;
+  }
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "cv11", "ss01", "kern";
+    letter-spacing: -0.005em;
+  }
+
+  h1, h2, h3, h4 {
+    letter-spacing: -0.018em;
+  }
+  h1 {
+    @apply text-balance;
+    line-height: 1.1;
+  }
+  h2 {
+    @apply text-balance;
+    line-height: 1.2;
+  }
+
+  /* Selection uses brand tint for cohesive feel */
+  ::selection {
+    background-color: color-mix(in oklch, var(--primary) 22%, transparent);
+    color: inherit;
+  }
+
+  /* --------------------------------------------------------------- *
+   * Accessibility safety net                                         *
+   * --------------------------------------------------------------- */
+
+  /* Give every focusable element a visible outline unless it opts out
+   * (e.g. our Button has its own ring). Keyboard-only via :focus-visible. */
+  :where(a, button, input, select, textarea, summary, [role="button"], [tabindex]):focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+    border-radius: calc(var(--radius) - 2px);
+  }
+
+  /* Remove the default focus ring from mouse clicks but keep it for keyboard. */
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  /* Respect OS-level motion preference — disable animations & transitions. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  /* Smooth scrolling for motion-tolerant users only. */
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+}
+
+/* Reusable utility primitives ---------------------------------------------- */
+@layer utilities {
+  /* Soft tonal surface for stat tiles, trust badges, etc. */
+  .surface-soft {
+    background: color-mix(in oklch, var(--primary) 5%, var(--background));
+  }
+  /* Subtle outlined card that sits on elevated surfaces */
+  .surface-outline {
+    background: var(--card);
+    border: 1px solid var(--border);
+  }
+  /* Grid-pattern decoration for hero sections */
+  .bg-grid-pattern {
+    background-image: linear-gradient(to right, color-mix(in oklch, var(--foreground) 7%, transparent) 1px, transparent 1px),
+      linear-gradient(to bottom, color-mix(in oklch, var(--foreground) 7%, transparent) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+  /* Radial spotlight used behind hero blocks */
+  .bg-hero-spotlight {
+    background:
+      radial-gradient(60% 60% at 50% 0%, color-mix(in oklch, var(--primary) 16%, transparent), transparent 70%),
+      radial-gradient(40% 40% at 85% 10%, color-mix(in oklch, var(--chart-3) 10%, transparent), transparent 70%),
+      var(--background);
+  }
+  /* Gradient text for display headlines */
+  .text-gradient-brand {
+    background: linear-gradient(135deg,
+      color-mix(in oklch, var(--primary) 100%, transparent) 0%,
+      color-mix(in oklch, var(--chart-2) 92%, transparent) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  /* Ring wrapper for "premium" / featured cards */
+  .ring-brand {
+    box-shadow: 0 1px 0 0 color-mix(in oklch, var(--primary) 14%, transparent),
+      0 8px 24px -12px color-mix(in oklch, var(--primary) 30%, transparent);
+  }
+  /* Dotted divider */
+  .divider-dotted {
+    background-image: linear-gradient(to right, color-mix(in oklch, var(--border) 100%, transparent) 50%, transparent 0);
+    background-size: 8px 1px;
+    background-repeat: repeat-x;
+    background-position: 0 50%;
+    height: 1px;
   }
 }

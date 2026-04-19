@@ -81,22 +81,22 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-hero-spotlight flex flex-col">
       {/* Header */}
-      <header className="border-b border-border py-4">
+      <header className="py-4">
         <div className="container mx-auto px-4">
           <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity w-fit">
-            <Image src="/hobbylink-logo.png" alt="HobbyLink" width={120} height={40} className="h-10 w-auto" priority />
+            <Image src="/hobbylink-logo.png" alt="HobbyLink" width={120} height={40} className="h-8 w-auto" priority />
           </Link>
         </div>
       </header>
 
       {/* Main Content */}
       <main className="flex-1 flex items-center justify-center p-4">
-        <Card className="w-full max-w-md border-2">
-          <CardHeader className="space-y-1 text-center">
-            <CardTitle className="text-3xl font-bold">로그인</CardTitle>
-            <CardDescription className="text-base">계정에 로그인하여 HobbyLink를 시작하세요</CardDescription>
+        <Card className="w-full max-w-md border-border/80">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl font-semibold tracking-tight">로그인</CardTitle>
+            <CardDescription>계정에 로그인하여 HobbyLink를 시작하세요.</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">

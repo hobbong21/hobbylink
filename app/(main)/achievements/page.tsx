@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Sparkles, Heart, Calendar, MessageSquare, Star, Users } from "lucide-react"
 import type { Tables } from "@/lib/database.types"
+import { XpProgress } from "@/components/profile/xp-progress"
 
 const ICONS: Record<string, typeof Sparkles> = {
   Sparkles,
@@ -22,16 +23,22 @@ export default async function AchievementsPage() {
   } = await supabase.auth.getUser()
   if (error || !user) redirect("/login")
 
-  const [{ data: catalog }, { data: earnedRows }] = await Promise.all([
-    supabase
-      .from("achievements")
-      .select("*")
-      .order("points", { ascending: true }),
-    supabase
-      .from("user_achievements")
-      .select("code, earned_at")
-      .eq("user_id", user.id),
-  ])
+  const [{ data: catalog }, { data: earnedRows }, { data: profileRow }] =
+    await Promise.all([
+      supabase
+        .from("achievements")
+        .select("*")
+        .order("points", { ascending: true }),
+      supabase
+        .from("user_achievements")
+        .select("code, earned_at")
+        .eq("user_id", user.id),
+      supabase
+        .from("profiles")
+        .select("xp, level")
+        .eq("id", user.id)
+        .maybeSingle(),
+    ])
 
   type Catalog = Tables<"achievements">
   const all = (catalog ?? []) as Catalog[]
@@ -57,6 +64,18 @@ export default async function AchievementsPage() {
             </p>
           </div>
         </div>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">내 레벨</CardTitle>
+            <CardDescription>
+              획득한 업적 포인트가 모여 레벨이 오릅니다.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <XpProgress xp={profileRow?.xp ?? totalPoints} />
+          </CardContent>
+        </Card>
 
         <div className="grid sm:grid-cols-2 gap-3">
           {all.map((a) => {

@@ -26,12 +26,15 @@ import {
   Home,
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
+import { XpProgress } from "@/components/profile/xp-progress"
 
 interface UserMenuProps {
   displayName: string
   email: string
   avatarUrl: string | null
   isPremium: boolean
+  xp?: number
+  level?: number
 }
 
 export function UserMenu({
@@ -39,6 +42,8 @@ export function UserMenu({
   email,
   avatarUrl,
   isPremium,
+  xp = 0,
+  level = 1,
 }: UserMenuProps) {
   const [open, setOpen] = useState(false)
   const [isPending, startTransition] = useTransition()
@@ -74,6 +79,11 @@ export function UserMenu({
             <Sparkles aria-hidden="true" className="w-4 h-4 text-orange-500" />
           )}
         </DropdownMenuLabel>
+        {(xp > 0 || level > 1) && (
+          <div className="px-2 pb-2">
+            <XpProgress xp={xp} compact />
+          </div>
+        )}
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
           <Link href="/home">

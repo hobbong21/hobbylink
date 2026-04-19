@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
 import { rateLimit } from "@/lib/rate-limit"
+import { logConversion } from "@/lib/feature-flags"
 import { sendEmail } from "@/lib/email/send"
 import { pickMatchEmail, type EmailLocale } from "@/lib/email/pick"
 import { sendPushToUser } from "@/lib/push/send"
@@ -135,7 +136,12 @@ export async function recordMatchAction(
     // so the match itself still succeeds.
     void notifyMutualMatch(user.id, candidateId)
     void pushMutualMatch(user.id, candidateId)
+    // A/B conversion marker for flags like `matching_v2_recency_boost`.
+    void logConversion("match.mutual")
   }
+
+  // Every like counts as a "match.like" conversion regardless of mutual.
+  if (action === "like") void logConversion("match.like")
 
   revalidatePath("/matching")
   return { ok: true, mutual }

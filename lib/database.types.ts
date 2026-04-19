@@ -33,6 +33,9 @@ export interface Database {
           last_active_at: string | null
           visibility: "public" | "connections" | "private"
           language: "ko" | "en"
+          xp: number
+          level: number
+          phone_verified_at: string | null
           created_at: string
           updated_at: string
         }
@@ -49,6 +52,9 @@ export interface Database {
           last_active_at?: string | null
           visibility?: "public" | "connections" | "private"
           language?: "ko" | "en"
+          xp?: number
+          level?: number
+          phone_verified_at?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -498,6 +504,101 @@ export interface Database {
         }
         Update: Partial<Database["public"]["Tables"]["event_messages"]["Insert"]>
       }
+      flag_exposures: {
+        Row: {
+          id: string
+          user_id: string | null
+          flag_key: string
+          variant: "on" | "off"
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id?: string | null
+          flag_key: string
+          variant: "on" | "off"
+          created_at?: string
+        }
+        Update: Partial<Database["public"]["Tables"]["flag_exposures"]["Insert"]>
+      }
+      api_keys: {
+        Row: {
+          id: string
+          user_id: string
+          name: string
+          key_prefix: string
+          key_hash: string
+          tier: "free" | "pro"
+          scopes: string[]
+          last_used_at: string | null
+          revoked_at: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          name: string
+          key_prefix: string
+          key_hash: string
+          tier?: "free" | "pro"
+          scopes?: string[]
+          last_used_at?: string | null
+          revoked_at?: string | null
+          created_at?: string
+        }
+        Update: Partial<Database["public"]["Tables"]["api_keys"]["Insert"]>
+      }
+      api_key_usage: {
+        Row: {
+          key_id: string
+          window_hour: string
+          request_count: number
+        }
+        Insert: {
+          key_id: string
+          window_hour: string
+          request_count?: number
+        }
+        Update: Partial<Database["public"]["Tables"]["api_key_usage"]["Insert"]>
+      }
+      match_tuning: {
+        Row: {
+          id: string
+          overlap_weight: number
+          location_exact_bonus: number
+          location_region_bonus: number
+          recency_48h_bonus: number
+          recency_7d_bonus: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          id: string
+          overlap_weight?: number
+          location_exact_bonus?: number
+          location_region_bonus?: number
+          recency_48h_bonus?: number
+          recency_7d_bonus?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: Partial<Database["public"]["Tables"]["match_tuning"]["Insert"]>
+      }
+      ab_conversions: {
+        Row: {
+          id: string
+          user_id: string | null
+          kind: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id?: string | null
+          kind: string
+          created_at?: string
+        }
+        Update: Partial<Database["public"]["Tables"]["ab_conversions"]["Insert"]>
+      }
       feature_flags: {
         Row: {
           key: string
@@ -623,6 +724,10 @@ export interface Database {
           url: string
           caption: string | null
           sort_order: number
+          thumb_path: string | null
+          thumb_url: string | null
+          thumb_status: "pending" | "done" | "failed"
+          thumb_error: string | null
           created_at: string
         }
         Insert: {
@@ -633,6 +738,10 @@ export interface Database {
           url: string
           caption?: string | null
           sort_order?: number
+          thumb_path?: string | null
+          thumb_url?: string | null
+          thumb_status?: "pending" | "done" | "failed"
+          thumb_error?: string | null
           created_at?: string
         }
         Update: Partial<Database["public"]["Tables"]["event_photos"]["Insert"]>

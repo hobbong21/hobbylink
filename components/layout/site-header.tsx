@@ -33,14 +33,16 @@ export async function SiteHeader({ minimal = false }: SiteHeaderProps) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  let profile: Pick<Tables<"profiles">, "display_name" | "avatar_url"> | null = null
+  let profile:
+    | Pick<Tables<"profiles">, "display_name" | "avatar_url" | "xp" | "level">
+    | null = null
   let isPremium = false
 
   if (user) {
     const [{ data: profileRow }, { data: subRow }] = await Promise.all([
       supabase
         .from("profiles")
-        .select("display_name, avatar_url")
+        .select("display_name, avatar_url, xp, level")
         .eq("id", user.id)
         .maybeSingle(),
       supabase
@@ -56,18 +58,19 @@ export async function SiteHeader({ minimal = false }: SiteHeaderProps) {
   const navItems = user ? AUTH_NAV : PUBLIC_NAV
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 border-b border-border/70 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/65">
       <div className="container mx-auto flex items-center justify-between gap-3 px-4 py-3">
         <Link
           href="/"
           className="flex items-center gap-2 transition-opacity hover:opacity-80 flex-shrink-0"
+          aria-label="HobbyLink 홈"
         >
           <Image
             src="/hobbylink-logo.png"
             alt="HobbyLink"
             width={120}
             height={40}
-            className="h-9 w-auto"
+            className="h-7 md:h-8 w-auto"
             priority
           />
         </Link>
@@ -85,16 +88,23 @@ export async function SiteHeader({ minimal = false }: SiteHeaderProps) {
               email={user.email ?? ""}
               avatarUrl={profile?.avatar_url ?? null}
               isPremium={isPremium}
+              xp={profile?.xp ?? 0}
+              level={profile?.level ?? 1}
             />
           ) : (
-            <>
-              <Button variant="ghost" asChild className="hidden sm:inline-flex">
+            <div className="flex items-center gap-1 pl-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                asChild
+                className="hidden sm:inline-flex"
+              >
                 <Link href="/login">로그인</Link>
               </Button>
               <Button asChild size="sm">
                 <Link href="/signup">회원가입</Link>
               </Button>
-            </>
+            </div>
           )}
         </div>
       </div>

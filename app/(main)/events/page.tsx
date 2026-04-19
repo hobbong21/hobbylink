@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Calendar, Clock, MapPin, Users, Plus, Search, CalendarDays } from "lucide-react"
+import { PageHeader } from "@/components/ui/page-header"
 import type { Tables } from "@/lib/database.types"
 
 interface EventsPageProps {
@@ -59,134 +60,171 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
   return (
     <main className="container mx-auto px-4 py-8">
       <div className="max-w-6xl mx-auto space-y-6">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-3xl md:text-4xl font-bold">오프라인 모임</h1>
-            <p className="text-muted-foreground mt-2">
-              지금 열리고 있는 모임을 살펴보고 참여해보세요.
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <Button asChild variant="outline">
-              <Link href="/events/calendar">
-                <CalendarDays aria-hidden="true" className="w-4 h-4 mr-2" />
-                캘린더
-              </Link>
-            </Button>
-            <Button asChild variant="outline">
-              <Link href="/events/nearby">
-                <MapPin aria-hidden="true" className="w-4 h-4 mr-2" />
-                주변 모임
-              </Link>
-            </Button>
-            {user && (
-              <Button asChild>
-                <Link href="/events/new">
-                  <Plus aria-hidden="true" className="w-4 h-4 mr-2" />
-                  모임 만들기
+        <PageHeader
+          eyebrow="모임"
+          title="오프라인 모임"
+          description="지금 열리고 있는 모임을 살펴보고 참여해보세요."
+          icon={<Calendar aria-hidden="true" className="w-5 h-5" />}
+          actions={
+            <>
+              <Button asChild variant="outline" size="sm">
+                <Link href="/events/calendar">
+                  <CalendarDays aria-hidden="true" className="w-4 h-4 mr-1.5" />
+                  캘린더
                 </Link>
               </Button>
-            )}
+              <Button asChild variant="outline" size="sm">
+                <Link href="/events/nearby">
+                  <MapPin aria-hidden="true" className="w-4 h-4 mr-1.5" />
+                  주변 모임
+                </Link>
+              </Button>
+              {user && (
+                <Button asChild size="sm">
+                  <Link href="/events/new">
+                    <Plus aria-hidden="true" className="w-4 h-4 mr-1.5" />
+                    모임 만들기
+                  </Link>
+                </Button>
+              )}
+            </>
+          }
+        />
+
+        <div className="flex flex-col sm:flex-row gap-3">
+          <form className="relative flex-1">
+            <Search
+              aria-hidden="true"
+              className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"
+            />
+            <Input
+              name="q"
+              type="search"
+              defaultValue={q}
+              placeholder="모임 이름·장소·설명 검색"
+              className="pl-10 h-10"
+              aria-label="모임 검색"
+            />
+            {when && <input type="hidden" name="when" value={when} />}
+          </form>
+          <div className="flex gap-1 p-1 rounded-lg bg-muted overflow-x-auto">
+            {[
+              { key: "", label: "전체" },
+              { key: "today", label: "오늘" },
+              { key: "week", label: "이번 주" },
+              { key: "month", label: "이번 달" },
+            ].map((f) => (
+              <Link
+                key={f.key || "all"}
+                href={buildHref(f.key)}
+                className={
+                  when === f.key
+                    ? "px-3 py-1.5 rounded-md bg-background text-foreground shadow-sm text-sm font-medium whitespace-nowrap"
+                    : "px-3 py-1.5 rounded-md text-muted-foreground hover:text-foreground text-sm whitespace-nowrap"
+                }
+              >
+                {f.label}
+              </Link>
+            ))}
           </div>
-        </div>
-
-        <form className="relative">
-          <Search
-            aria-hidden="true"
-            className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground"
-          />
-          <Input
-            name="q"
-            type="search"
-            defaultValue={q}
-            placeholder="모임 이름·장소·설명 검색"
-            className="pl-12 h-11"
-            aria-label="모임 검색"
-          />
-          {when && <input type="hidden" name="when" value={when} />}
-        </form>
-
-        <div className="flex gap-2 overflow-x-auto">
-          {[
-            { key: "", label: "전체" },
-            { key: "today", label: "오늘" },
-            { key: "week", label: "이번 주" },
-            { key: "month", label: "이번 달" },
-          ].map((f) => (
-            <Button
-              key={f.key || "all"}
-              asChild
-              size="sm"
-              variant={when === f.key ? "default" : "outline"}
-            >
-              <Link href={buildHref(f.key)}>{f.label}</Link>
-            </Button>
-          ))}
         </div>
 
         {events.length === 0 ? (
-          <Card>
-            <CardContent className="py-16 text-center">
-              <p className="text-muted-foreground mb-4">
-                {q ? `"${q}"에 해당하는 모임이 없습니다.` : "예정된 모임이 없습니다."}
-              </p>
-              {user && (
-                <Button asChild>
-                  <Link href="/events/new">첫 모임 만들기</Link>
-                </Button>
-              )}
-            </CardContent>
-          </Card>
+          <div className="rounded-xl border border-dashed border-border py-16 text-center">
+            <Calendar
+              className="w-10 h-10 text-muted-foreground/50 mx-auto mb-3"
+              aria-hidden="true"
+            />
+            <p className="text-sm text-muted-foreground mb-4">
+              {q
+                ? `"${q}"에 해당하는 모임이 없습니다.`
+                : "예정된 모임이 없습니다."}
+            </p>
+            {user && (
+              <Button asChild>
+                <Link href="/events/new">첫 모임 만들기</Link>
+              </Button>
+            )}
+          </div>
         ) : (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
             {events.map((event) => {
               const date = new Date(event.event_date)
               const isFull =
                 event.max_participants !== null &&
                 (event.current_participants ?? 0) >= event.max_participants
+              const isToday = date.toDateString() === new Date().toDateString()
               return (
-                <Card
+                <Link
                   key={event.id}
-                  className="group overflow-hidden hover:shadow-lg transition-all duration-300"
+                  href={`/events/${event.id}`}
+                  className="group rounded-xl border border-border/80 bg-card overflow-hidden hover:border-primary/40 hover:shadow-[0_1px_0_0_var(--border),0_18px_36px_-24px_color-mix(in_oklch,var(--primary)_40%,transparent)] transition-all"
                 >
-                  {event.image_url && (
-                    <div className="relative aspect-video overflow-hidden">
+                  {event.image_url ? (
+                    <div className="relative aspect-[16/10] overflow-hidden bg-muted">
                       <Image
                         src={event.image_url}
                         alt={event.title}
                         fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                        className="object-cover group-hover:scale-[1.03] transition-transform duration-500"
                         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      />
+                      <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
+                        {isToday && (
+                          <Badge className="bg-primary text-primary-foreground">
+                            오늘
+                          </Badge>
+                        )}
+                        {isFull && (
+                          <Badge variant="destructive">마감</Badge>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="relative aspect-[16/10] bg-gradient-to-br from-primary-muted to-muted flex items-center justify-center">
+                      <Calendar
+                        className="w-8 h-8 text-primary/40"
+                        aria-hidden="true"
                       />
                     </div>
                   )}
-                  <CardHeader>
-                    <div className="flex items-start justify-between gap-2 mb-2">
-                      <CardTitle className="text-lg line-clamp-1">
+                  <div className="p-5 space-y-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <h3 className="text-base font-semibold line-clamp-1 group-hover:text-primary transition-colors">
                         {event.title}
-                      </CardTitle>
+                      </h3>
                       {event.hobbies?.category && (
-                        <Badge variant="secondary" className="flex-shrink-0">
+                        <Badge
+                          variant="secondary"
+                          className="flex-shrink-0 text-[11px]"
+                        >
                           {event.hobbies.category}
                         </Badge>
                       )}
                     </div>
                     {event.description && (
-                      <CardDescription className="line-clamp-2">
+                      <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
                         {event.description}
-                      </CardDescription>
+                      </p>
                     )}
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="space-y-1 text-sm text-muted-foreground">
-                      <div className="flex items-center gap-2">
-                        <Calendar aria-hidden="true" className="w-4 h-4" />
+                    <div className="pt-2 border-t border-border/60 space-y-1.5 text-xs text-muted-foreground">
+                      <div className="flex items-center gap-1.5">
+                        <Calendar
+                          aria-hidden="true"
+                          className="w-3.5 h-3.5 flex-shrink-0"
+                        />
                         <time dateTime={event.event_date}>
-                          {date.toLocaleDateString("ko-KR")}
+                          {date.toLocaleDateString("ko-KR", {
+                            month: "short",
+                            day: "numeric",
+                            weekday: "short",
+                          })}
                         </time>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Clock aria-hidden="true" className="w-4 h-4" />
+                        <span className="text-muted-foreground/60">·</span>
+                        <Clock
+                          aria-hidden="true"
+                          className="w-3.5 h-3.5 flex-shrink-0"
+                        />
                         <span>
                           {date.toLocaleTimeString("ko-KR", {
                             hour: "2-digit",
@@ -195,27 +233,30 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
                         </span>
                       </div>
                       {event.location && (
-                        <div className="flex items-center gap-2">
-                          <MapPin aria-hidden="true" className="w-4 h-4" />
+                        <div className="flex items-center gap-1.5">
+                          <MapPin
+                            aria-hidden="true"
+                            className="w-3.5 h-3.5 flex-shrink-0"
+                          />
                           <span className="line-clamp-1">{event.location}</span>
                         </div>
                       )}
-                      <div className="flex items-center gap-2">
-                        <Users aria-hidden="true" className="w-4 h-4" />
-                        <span>
+                      <div className="flex items-center gap-1.5">
+                        <Users
+                          aria-hidden="true"
+                          className="w-3.5 h-3.5 flex-shrink-0"
+                        />
+                        <span className="tabular-nums">
                           {event.current_participants ?? 0}
                           {event.max_participants
                             ? ` / ${event.max_participants}`
                             : ""}
-                          명{isFull && " · 마감"}
+                          명
                         </span>
                       </div>
                     </div>
-                    <Button asChild className="w-full">
-                      <Link href={`/events/${event.id}`}>자세히 보기</Link>
-                    </Button>
-                  </CardContent>
-                </Card>
+                  </div>
+                </Link>
               )
             })}
           </div>
