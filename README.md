@@ -2,6 +2,8 @@
 
 취미로 연결되는 오프라인 모임 플랫폼. Next.js 15 App Router + React 19 + Supabase + Tailwind CSS 기반.
 
+이 디렉토리는 웹 앱 전용 워크스페이스입니다. 현재 상위 작업 폴더는 `web/`(Next.js)와 `mobile/`(모바일 앱)로 분리되어 있으며, 아래 명령은 모두 `web/` 디렉토리 기준입니다.
+
 ## 빠른 시작
 
 ```bash
@@ -30,17 +32,17 @@ pnpm dev
 
 ## 주요 스크립트
 
-| 명령 | 설명 |
-| --- | --- |
-| `pnpm dev` | 개발 서버 (http://localhost:3000) |
-| `pnpm build` | 프로덕션 빌드 |
-| `pnpm start` | 프로덕션 서버 |
-| `pnpm lint` | ESLint 검사 |
-| `pnpm lint:fix` | ESLint 자동 수정 |
-| `pnpm format` | Prettier 포맷 |
-| `pnpm typecheck` | TypeScript 타입 검사 |
-| `pnpm test` | Vitest 단위 테스트 |
-| `pnpm test:e2e` | Playwright E2E 테스트 |
+| 명령             | 설명                              |
+| ---------------- | --------------------------------- |
+| `pnpm dev`       | 개발 서버 (http://localhost:3000) |
+| `pnpm build`     | 프로덕션 빌드                     |
+| `pnpm start`     | 프로덕션 서버                     |
+| `pnpm lint`      | ESLint 검사                       |
+| `pnpm lint:fix`  | ESLint 자동 수정                  |
+| `pnpm format`    | Prettier 포맷                     |
+| `pnpm typecheck` | TypeScript 타입 검사              |
+| `pnpm test`      | Vitest 단위 테스트                |
+| `pnpm test:e2e`  | Playwright E2E 테스트             |
 
 ## 프로젝트 구조
 
