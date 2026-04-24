@@ -21,9 +21,9 @@ const cspDirectives = {
     "'unsafe-eval'",
     "https://va.vercel-scripts.com",
   ],
-  "style-src": ["'self'", "'unsafe-inline'"],
+  "style-src": ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
   "img-src": ["'self'", "data:", "blob:", "https://*.supabase.co"],
-  "font-src": ["'self'", "data:"],
+  "font-src": ["'self'", "data:", "https://cdn.jsdelivr.net"],
   "connect-src": [
     "'self'",
     `https://${SUPABASE_HOST}`,
