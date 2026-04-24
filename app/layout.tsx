@@ -17,7 +17,6 @@ const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
   display: "swap",
-  // Feature settings for tabular numerals used in stat widgets.
   adjustFontFallback: true,
 })
 
@@ -76,9 +75,23 @@ export default function RootLayout({
           href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.css"
         />
         <style
-          // CSS var `--font-pretendard` is referenced from globals.css @theme block.
           dangerouslySetInnerHTML={{
             __html: `:root { --font-pretendard: "Pretendard Variable", Pretendard; }`,
+          }}
+        />
+        {/*
+          Theme-init script: runs synchronously before React hydrates so
+          <html> already has the correct 'dark'/'light' class on first paint.
+          This prevents the flash-of-incorrect-theme (FOIT) that would
+          otherwise occur because our ThemeProvider defers mounting via
+          a React.useState(false) guard to avoid the React 19 hydration
+          mismatch caused by next-themes' module-level J constant.
+        */}
+        <script
+          suppressHydrationWarning
+          dangerouslySetInnerHTML={{
+            __html:
+              "(function(){try{var t=localStorage.getItem('theme');var d=window.matchMedia('(prefers-color-scheme: dark)').matches;var m=(!t||t==='system')?(d?'dark':'light'):t;document.documentElement.classList.add(m);document.documentElement.style.colorScheme=m;}catch(e){}})();",
           }}
         />
       </head>
