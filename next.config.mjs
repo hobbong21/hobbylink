@@ -36,6 +36,7 @@ const csp = Object.entries(cspDirectives)
   .join("; ")
 
 const nextConfig = {
+  allowedDevOrigins: ["*.replit.dev", "*.replit.app", "*.repl.co"],
   typescript: {
     ignoreBuildErrors: false,
   },
