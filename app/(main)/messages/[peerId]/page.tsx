@@ -25,6 +25,18 @@ export default async function ThreadPage({ params }: ThreadPageProps) {
   const { messages, peer } = await getThread(user.id, peerId)
   if (!peer) notFound()
 
+  // Generate short-lived signed URLs for any message image attachments so the
+  // private bucket is accessed only by the two conversation participants.
+  const messagesWithSignedUrls = await Promise.all(
+    messages.map(async (m) => {
+      if (!m.image_path) return { ...m, image_url: null }
+      const { data } = await supabase.storage
+        .from("message-images")
+        .createSignedUrl(m.image_path, 3600)
+      return { ...m, image_url: data?.signedUrl ?? null }
+    }),
+  )
+
   // Grab the previous read marker *before* we advance it so the client can
   // draw a "read up to here" divider.
   const { data: prevReadRow } = await supabase
@@ -68,7 +80,7 @@ export default async function ThreadPage({ params }: ThreadPageProps) {
             <ThreadClient
               currentUserId={user.id}
               peerId={peer.id}
-              initialMessages={messages.map((m) => ({
+              initialMessages={messagesWithSignedUrls.map((m) => ({
                 id: m.id,
                 sender_id: m.sender_id,
                 content: m.content,

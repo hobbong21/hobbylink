@@ -64,7 +64,7 @@ export async function getConversations(userId: string): Promise<Conversation[]> 
         peer_id,
         peer_display_name: p?.display_name ?? "사용자",
         peer_avatar_url: p?.avatar_url ?? null,
-        last_content: last.content || (last.image_url ? "📷 사진" : ""),
+        last_content: last.content || (last.image_path ? "📷 사진" : ""),
         last_created_at: last.created_at,
         unread_count: unread,
       }

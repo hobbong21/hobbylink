@@ -64,6 +64,17 @@ export async function sendMessage(formData: FormData): Promise<SendResult> {
     return { ok: false, message: "자기 자신에게는 메시지를 보낼 수 없습니다" }
   }
 
+  // Ensure the image_path, when supplied, begins with the sender's own uid
+  // folder so that forged cross-user paths cannot be stored in the messages
+  // table and later exploited to gain storage-policy access to other users'
+  // files.
+  if (
+    parsed.data.image_path &&
+    !parsed.data.image_path.startsWith(`${user.id}/`)
+  ) {
+    return { ok: false, message: "올바르지 않은 이미지 경로입니다" }
+  }
+
   // Require an accepted match to prevent message spam between strangers.
   const { data: mutual } = await supabase
     .from("matches")
@@ -82,7 +93,10 @@ export async function sendMessage(formData: FormData): Promise<SendResult> {
     sender_id: user.id,
     receiver_id: parsed.data.receiver_id,
     content: parsed.data.content || "",
-    image_url: parsed.data.image_url ?? null,
+    // image_url is intentionally not persisted: the bucket is private and
+    // signed URLs are short-lived. The path is stored instead so signed URLs
+    // can be generated on demand at read time.
+    image_url: null,
     image_path: parsed.data.image_path ?? null,
   })
   if (error) return { ok: false, message: error.message }

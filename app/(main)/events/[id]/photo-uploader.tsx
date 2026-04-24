@@ -49,11 +49,17 @@ export function PhotoUploader({ eventId, userId }: PhotoUploaderProps) {
           .upload(storagePath, file, { cacheControl: "3600", upsert: false })
         if (upErr) throw upErr
 
-        const { data } = supabase.storage.from("event-photos").getPublicUrl(storagePath)
+        // Bucket is private; generate a short-lived signed URL to satisfy the
+        // non-null url column. The gallery re-generates signed URLs from
+        // storage_path at render time, so this value is not used for display.
+        const { data: signData, error: signErr } = await supabase.storage
+          .from("event-photos")
+          .createSignedUrl(storagePath, 3600)
+        if (signErr) throw signErr
         const result = await recordEventPhoto({
           eventId,
           storagePath,
-          url: data.publicUrl,
+          url: signData.signedUrl,
           caption: caption.trim() || undefined,
         })
         if (!result.ok) throw new Error(result.message)

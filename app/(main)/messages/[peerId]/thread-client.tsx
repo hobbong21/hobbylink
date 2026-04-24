@@ -103,8 +103,11 @@ export function ThreadClient({
         .from("message-images")
         .upload(path, file, { cacheControl: "3600", upsert: false })
       if (upErr) throw upErr
-      const { data } = supabase.storage.from("message-images").getPublicUrl(path)
-      setAttachment({ url: data.publicUrl, path })
+      const { data: signData, error: signErr } = await supabase.storage
+        .from("message-images")
+        .createSignedUrl(path, 3600)
+      if (signErr) throw signErr
+      setAttachment({ url: signData.signedUrl, path })
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "업로드 실패")
     } finally {

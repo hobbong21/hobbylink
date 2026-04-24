@@ -29,7 +29,27 @@ export async function PhotoGallery({
   type PhotoRow = Tables<"event_photos"> & {
     profiles: Pick<Tables<"profiles">, "display_name"> | null
   }
-  const rows = (photos ?? []) as PhotoRow[]
+  const rawRows = (photos ?? []) as PhotoRow[]
+
+  // Generate signed URLs from storage paths since the buckets are private.
+  const rows = await Promise.all(
+    rawRows.map(async (p) => {
+      const { data: orig } = await supabase.storage
+        .from("event-photos")
+        .createSignedUrl(p.storage_path, 3600)
+      const signedUrl = orig?.signedUrl ?? p.url
+
+      let signedThumbUrl: string | null = null
+      if (p.thumb_path) {
+        const { data: thumb } = await supabase.storage
+          .from("event-photo-thumbnails")
+          .createSignedUrl(p.thumb_path, 3600)
+        signedThumbUrl = thumb?.signedUrl ?? null
+      }
+
+      return { ...p, url: signedUrl, thumb_url: signedThumbUrl ?? p.thumb_url }
+    }),
+  )
 
   // Who may upload: organizer or accepted participant.
   let canUpload = false
