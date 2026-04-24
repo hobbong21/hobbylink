@@ -11,8 +11,12 @@
 create table if not exists public.tags (
   id uuid primary key default uuid_generate_v4(),
   name text unique not null check (name = lower(name) and char_length(name) between 1 and 40),
+  description text,
   created_at timestamptz not null default timezone('utc'::text, now())
 );
+
+-- Backfill the description column on pre-existing installations.
+alter table public.tags add column if not exists description text;
 
 create index if not exists tags_name_idx on public.tags(name);
 
