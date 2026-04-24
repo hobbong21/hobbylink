@@ -1,5 +1,5 @@
 -- HobbyLink: combined schema + seed deploy
--- Generated 2026-04-24T08:53:55Z
+-- Generated 2026-04-24T08:57:02Z
 -- Run this in Supabase Dashboard → SQL Editor → New query
 
 
@@ -2861,7 +2861,7 @@ alter table public.profiles
   add column if not exists xp integer not null default 0,
   add column if not exists level integer not null default 1;
 
-create or replace function public.compute_level(p_xp integer)
+create or replace function public.compute_level(p_xp bigint)
 returns integer
 language sql
 immutable
