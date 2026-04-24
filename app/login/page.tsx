@@ -38,7 +38,7 @@ export default function LoginPage() {
 
       // Route new users to onboarding so matching works immediately.
       const { data: sessionUser } = await supabase.auth.getUser()
-      let next = "/"
+      let next = "/home"
       if (sessionUser.user) {
         const [{ data: profile }, { count }] = await Promise.all([
           supabase
@@ -70,7 +70,7 @@ export default function LoginPage() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${window.location.origin}/auth/callback?next=/`,
+          redirectTo: `${window.location.origin}/auth/callback?next=/home`,
         },
       })
       if (error) throw error
