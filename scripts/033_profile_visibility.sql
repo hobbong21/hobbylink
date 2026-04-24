@@ -16,20 +16,24 @@ alter table public.profiles
   add column if not exists visibility public.profile_visibility
     not null default 'public';
 
--- SECURITY DEFINER helper to check admin status without triggering RLS recursion
--- on the profiles table when used inside profiles' own policies.
-create or replace function public.is_admin(uid uuid)
+-- SECURITY DEFINER helper to check if the *current* caller is an admin without
+-- triggering RLS recursion on the profiles table when used in profiles' own
+-- policies. Takes no argument so it cannot be used to probe other users.
+create or replace function public.is_current_user_admin()
 returns boolean
 language sql
 stable
 security definer
 set search_path = public
 as $$
-  select coalesce((select is_admin from public.profiles where id = uid), false);
+  select coalesce((select is_admin from public.profiles where id = auth.uid()), false);
 $$;
 
-revoke all on function public.is_admin(uuid) from public;
-grant execute on function public.is_admin(uuid) to authenticated, anon, service_role;
+revoke all on function public.is_current_user_admin() from public;
+grant execute on function public.is_current_user_admin() to authenticated, anon, service_role;
+
+-- Drop the parameterized variant if it was created by an earlier patch.
+drop function if exists public.is_admin(uuid);
 
 -- Replace the SELECT policy from 004_security_hardening with a
 -- visibility-aware version.
@@ -43,7 +47,7 @@ create policy "Profiles readable by visibility rules"
     -- Own profile is always readable
     auth.uid() = id
     -- Admins can read everyone (uses SECURITY DEFINER to avoid recursion)
-    or public.is_admin(auth.uid())
+    or public.is_current_user_admin()
     -- Public profiles are readable by any authenticated user
     or (visibility = 'public' and auth.role() = 'authenticated')
     -- "connections" visibility: readable by mutual-match peers and followers
