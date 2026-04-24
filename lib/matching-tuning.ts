@@ -5,22 +5,9 @@
  * matching never breaks because of a missing config table.
  */
 import { createClient } from "@/lib/supabase/server"
+import { DEFAULT_TUNING, type MatchTuning } from "@/lib/matching-tuning-types"
 
-export interface MatchTuning {
-  overlap_weight: number
-  location_exact_bonus: number
-  location_region_bonus: number
-  recency_48h_bonus: number
-  recency_7d_bonus: number
-}
-
-export const DEFAULT_TUNING: MatchTuning = {
-  overlap_weight: 100,
-  location_exact_bonus: 10,
-  location_region_bonus: 5,
-  recency_48h_bonus: 8,
-  recency_7d_bonus: 3,
-}
+export { DEFAULT_TUNING, type MatchTuning }
 
 export async function getMatchTuning(): Promise<MatchTuning> {
   try {

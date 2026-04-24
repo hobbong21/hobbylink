@@ -6,8 +6,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Slider } from "@/components/ui/slider"
 import { saveMatchTuning, resetMatchTuning } from "./actions"
-import type { MatchTuning } from "@/lib/matching-tuning"
-import { DEFAULT_TUNING } from "@/lib/matching-tuning"
+import type { MatchTuning } from "@/lib/matching-tuning-types"
+import { DEFAULT_TUNING } from "@/lib/matching-tuning-types"
 import { RotateCcw, Save } from "lucide-react"
 
 interface TuningFormProps {

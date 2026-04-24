@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import type { MatchTuning } from "@/lib/matching-tuning"
+import type { MatchTuning } from "@/lib/matching-tuning-types"
 
 /**
  * Client-side preview that mirrors the server scorer in `lib/matching.ts`.
