@@ -1,5 +1,5 @@
 -- HobbyLink: combined schema + seed deploy
--- Generated 2026-04-24T08:31:33Z
+-- Generated 2026-04-24T08:47:52Z
 -- Run this in Supabase Dashboard → SQL Editor → New query
 
 
@@ -1348,6 +1348,10 @@ begin
 end;
 $$;
 
+-- Restrict RPC access: revoke default public execute, allow authenticated only.
+revoke execute on function public.get_or_create_tag(text) from public;
+grant execute on function public.get_or_create_tag(text) to authenticated;
+
 
 -- ==========================================
 -- scripts/016_push_subscriptions.sql
@@ -1812,7 +1816,7 @@ insert into public.achievements (code, label, description, icon, points) values
 on conflict (code) do nothing;
 
 -- -------------------------------------------------------------
--- Atomic unlock helper (callable from app code via RPC).
+-- Atomic unlock helper (internal use only — invoked by triggers).
 -- Returns true if the unlock was new.
 -- -------------------------------------------------------------
 create or replace function public.unlock_achievement(p_code text)
@@ -1833,6 +1837,12 @@ begin
   return v_inserted > 0;
 end;
 $$;
+
+-- Restrict RPC access: revoke execute from all unprivileged roles.
+-- Achievements must be granted only through server-side triggers.
+revoke execute on function public.unlock_achievement(text) from public;
+revoke execute on function public.unlock_achievement(text) from authenticated;
+revoke execute on function public.unlock_achievement(text) from anon;
 
 -- -------------------------------------------------------------
 -- Auto-triggers for passive unlocks.
