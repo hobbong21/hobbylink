@@ -1,6 +1,5 @@
--- HobbyLink: combined schema + seed deploy
--- Generated 2026-04-24T09:00:18Z
--- Run this in Supabase Dashboard → SQL Editor → New query
+-- HobbyLink combined schema and seed deploy
+-- Run this in the Supabase SQL Editor
 
 
 -- ==========================================
