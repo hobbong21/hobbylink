@@ -83,7 +83,7 @@ alter table public.user_blocks enable row level security;
 drop policy if exists "Users can see their own blocks" on public.user_blocks;
 create policy "Users can see their own blocks"
   on public.user_blocks for select
-  using (auth.uid() = blocker_id);
+  using (auth.uid() = blocker_id or auth.uid() = blocked_id);
 
 drop policy if exists "Users can block others" on public.user_blocks;
 create policy "Users can block others"
@@ -94,6 +94,12 @@ drop policy if exists "Users can unblock" on public.user_blocks;
 create policy "Users can unblock"
   on public.user_blocks for delete
   using (auth.uid() = blocker_id);
+
+-- The `reason` column is an internal moderation field; regular users have no
+-- need to read it.  Restrict column access so it is only available to
+-- service_role (admin/server-side tooling).
+revoke select (reason) on public.user_blocks from authenticated;
+revoke select (reason) on public.user_blocks from anon;
 
 -- -------------------------------------------------------------
 -- User status fields for moderation
