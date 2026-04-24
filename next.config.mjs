@@ -3,9 +3,15 @@
 // Content Security Policy.
 // Keep this as restrictive as possible; when integrating third-parties
 // (analytics, map SDK, etc.) add their origin here and nowhere else.
-const SUPABASE_HOST = process.env.NEXT_PUBLIC_SUPABASE_URL
-  ? new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).host
-  : "*.supabase.co"
+function safeHost(value, fallback) {
+  if (!value) return fallback
+  try {
+    return new URL(value).host
+  } catch {
+    return fallback
+  }
+}
+const SUPABASE_HOST = safeHost(process.env.NEXT_PUBLIC_SUPABASE_URL, "*.supabase.co")
 
 const cspDirectives = {
   "default-src": ["'self'"],
