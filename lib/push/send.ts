@@ -13,6 +13,30 @@
 
 import { createClient } from "@/lib/supabase/server"
 
+// Exact hosts for known push providers.
+const PUSH_EXACT_HOSTS = new Set([
+  "fcm.googleapis.com",
+  "updates.push.services.mozilla.com",
+  "push.apple.com",
+  "web.push.apple.com",
+  "notify.windows.com",
+])
+
+function isSafePushEndpoint(endpoint: string): boolean {
+  try {
+    const u = new URL(endpoint)
+    if (u.protocol !== "https:") return false
+    const host = u.hostname.toLowerCase()
+    if (PUSH_EXACT_HOSTS.has(host)) return true
+    if (host.endsWith(".push.services.mozilla.com")) return true
+    if (/^wns2-[a-z0-9]+\.notify\.windows\.com$/.test(host)) return true
+    if (host.endsWith(".push.apple.com")) return true
+    return false
+  } catch {
+    return false
+  }
+}
+
 export interface PushPayload {
   title: string
   body: string
@@ -60,10 +84,18 @@ export async function sendPushToUser(userId: string, payload: PushPayload) {
   let sent = 0
   const body = JSON.stringify(payload)
   for (const s of subs) {
+    const endpoint = s.endpoint as string
+    if (!isSafePushEndpoint(endpoint)) {
+      // Defense-in-depth: skip any stored endpoint that doesn't belong to a
+      // known browser push provider. This prevents blind SSRF even if a row
+      // somehow bypassed the subscribe route validation.
+      await supabase.from("push_subscriptions").delete().eq("endpoint", endpoint)
+      continue
+    }
     try {
       await webpush.sendNotification(
         {
-          endpoint: s.endpoint as string,
+          endpoint,
           keys: { p256dh: s.p256dh as string, auth: s.auth as string },
         },
         body,
@@ -76,7 +108,7 @@ export async function sendPushToUser(userId: string, payload: PushPayload) {
         await supabase
           .from("push_subscriptions")
           .delete()
-          .eq("endpoint", s.endpoint as string)
+          .eq("endpoint", endpoint)
       }
     }
   }

@@ -34,12 +34,35 @@ create policy "Owners read own api keys"
 drop policy if exists "Owners create own api keys" on public.api_keys;
 create policy "Owners create own api keys"
   on public.api_keys for insert
-  with check (user_id = auth.uid());
+  with check (
+    user_id = auth.uid()
+    -- Enforce server-side business rules at the DB layer so direct Supabase
+    -- client calls cannot bypass them.
+    AND tier = 'free'
+    AND scopes = array['public:read']::text[]
+    AND revoked_at IS NULL
+    -- Enforce the per-user active-key cap (mirrors MAX_KEYS_PER_USER in the UI).
+    AND (
+      SELECT count(*)
+      FROM public.api_keys
+      WHERE user_id = auth.uid()
+        AND revoked_at IS NULL
+    ) < 5
+  );
 
 drop policy if exists "Owners update own api keys" on public.api_keys;
 create policy "Owners update own api keys"
   on public.api_keys for update
-  using (user_id = auth.uid());
+  using (user_id = auth.uid())
+  -- Restrict what the new row is allowed to look like after an update:
+  --   • tier and scopes must stay at their default values (prevents escalation).
+  --   • revoked_at must be non-null (allows revocation but not un-revocation).
+  with check (
+    user_id = auth.uid()
+    AND tier = 'free'
+    AND scopes = array['public:read']::text[]
+    AND revoked_at IS NOT NULL
+  );
 
 -- --------------------------------------------------------------------------
 -- Simple usage counter (rolled up hourly). Used by the docs page to show
