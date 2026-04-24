@@ -25,6 +25,25 @@ create table if not exists public.hobbies (
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
+-- Ensure name uniqueness so seed scripts can use ON CONFLICT (name).
+-- Idempotent: drops duplicates first, then adds the constraint if missing.
+do $$
+begin
+  if not exists (
+    select 1
+      from pg_constraint
+     where conrelid = 'public.hobbies'::regclass
+       and conname = 'hobbies_name_key'
+  ) then
+    delete from public.hobbies a
+      using public.hobbies b
+     where a.name = b.name
+       and a.ctid > b.ctid;
+    alter table public.hobbies
+      add constraint hobbies_name_key unique (name);
+  end if;
+end $$;
+
 -- User hobbies (many-to-many relationship)
 create table if not exists public.user_hobbies (
   id uuid primary key default uuid_generate_v4(),
