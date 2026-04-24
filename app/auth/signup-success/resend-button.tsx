@@ -22,7 +22,8 @@ export function ResendVerificationButton() {
         email,
         options: {
           emailRedirectTo:
-            (typeof window !== "undefined" ? window.location.origin : "") + "/",
+            (typeof window !== "undefined" ? window.location.origin : "") +
+            "/auth/callback",
         },
       })
       if (error) throw error
