@@ -1,5 +1,5 @@
 -- HobbyLink: combined schema + seed deploy
--- Generated 2026-04-24T08:22:42Z
+-- Generated 2026-04-24T08:25:09Z
 -- Run this in Supabase Dashboard → SQL Editor → New query
 
 
@@ -3334,6 +3334,181 @@ begin
               and e.organizer_id = auth.uid()
           )
         )
+      );
+  end if;
+end $$;
+
+
+-- ==========================================
+-- scripts/047_fix_messages_rls.sql
+-- ==========================================
+-- ============================================================================
+-- 047_fix_messages_rls.sql
+-- Tightens RLS policies on public.messages:
+--   1. INSERT now requires an accepted match between sender and receiver,
+--      and rejects inserts when either side has blocked the other.
+--   2. UPDATE is restricted to the receiver toggling is_read only; a trigger
+--      prevents any other column from being modified after send.
+-- ============================================================================
+
+-- ── INSERT: require accepted match + no block relationship ───────────────────
+drop policy if exists "Users can send messages" on public.messages;
+
+create policy "Users can send messages"
+  on public.messages for insert
+  with check (
+    auth.uid() = sender_id
+    and exists (
+      select 1 from public.matches
+      where status = 'accepted'
+        and (
+          (user_id     = auth.uid() and matched_user_id = receiver_id)
+          or
+          (matched_user_id = auth.uid() and user_id = receiver_id)
+        )
+    )
+    and not exists (
+      select 1 from public.user_blocks
+      where
+        (blocker_id = auth.uid() and blocked_id = receiver_id)
+        or
+        (blocker_id = receiver_id and blocked_id = auth.uid())
+    )
+  );
+
+-- ── UPDATE: receiver may only toggle is_read ─────────────────────────────────
+drop policy if exists "Users can update messages they received" on public.messages;
+
+create policy "Users can mark messages as read"
+  on public.messages for update
+  using (auth.uid() = receiver_id)
+  with check (auth.uid() = receiver_id);
+
+-- Trigger enforces strict immutability: every column except is_read is locked
+-- permanently after insert. This prevents any client — including the receiver —
+-- from falsifying message content, timestamps, participants, or attachments.
+create or replace function public.prevent_message_content_edit()
+  returns trigger
+  language plpgsql
+  security definer
+  set search_path = public
+as $$
+begin
+  if new.id          is distinct from old.id
+  or new.sender_id   is distinct from old.sender_id
+  or new.receiver_id is distinct from old.receiver_id
+  or new.content     is distinct from old.content
+  or new.created_at  is distinct from old.created_at
+  or new.image_url   is distinct from old.image_url
+  or new.image_path  is distinct from old.image_path
+  then
+    raise exception 'only is_read may be updated on a message';
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists enforce_message_immutability on public.messages;
+create trigger enforce_message_immutability
+  before update on public.messages
+  for each row execute function public.prevent_message_content_edit();
+
+
+-- ==========================================
+-- scripts/048_fix_storage_security.sql
+-- ==========================================
+-- ============================================================================
+-- 048_fix_storage_security.sql
+-- Converts the three media buckets from public to private and replaces
+-- open-to-the-internet SELECT policies with properly scoped ones.
+--
+--   message-images        → only the sender/receiver of the containing message
+--   event-photos          → any authenticated user
+--   event-photo-thumbnails → any authenticated user
+-- ============================================================================
+
+-- ── message-images ───────────────────────────────────────────────────────────
+update storage.buckets
+  set public = false
+  where id = 'message-images';
+
+drop policy if exists "DM images are publicly readable" on storage.objects;
+
+do $$
+begin
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'storage'
+      and tablename   = 'objects'
+      and policyname  = 'Message participants can view DM images'
+  ) then
+    create policy "Message participants can view DM images"
+      on storage.objects for select
+      using (
+        bucket_id = 'message-images'
+        and auth.role() = 'authenticated'
+        and (
+          -- the uploader can always read files they own
+          (storage.foldername(name))[1] = auth.uid()::text
+          -- the recipient may read the file only when a legitimate message
+          -- references this exact path AND the first path segment matches the
+          -- sender's uuid (proving the sender actually owns the file and the
+          -- path was not forged by a third party)
+          or exists (
+            select 1 from public.messages
+            where image_path = name
+              and receiver_id = auth.uid()
+              and sender_id::text = (storage.foldername(name))[1]
+          )
+        )
+      );
+  end if;
+end $$;
+
+-- ── event-photos ─────────────────────────────────────────────────────────────
+update storage.buckets
+  set public = false
+  where id = 'event-photos';
+
+drop policy if exists "Event photos are publicly readable" on storage.objects;
+
+do $$
+begin
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'storage'
+      and tablename   = 'objects'
+      and policyname  = 'Authenticated users can view event photos'
+  ) then
+    create policy "Authenticated users can view event photos"
+      on storage.objects for select
+      using (
+        bucket_id = 'event-photos'
+        and auth.role() = 'authenticated'
+      );
+  end if;
+end $$;
+
+-- ── event-photo-thumbnails ───────────────────────────────────────────────────
+update storage.buckets
+  set public = false
+  where id = 'event-photo-thumbnails';
+
+drop policy if exists "Event photo thumbnails are publicly readable" on storage.objects;
+
+do $$
+begin
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'storage'
+      and tablename   = 'objects'
+      and policyname  = 'Authenticated users can view event photo thumbnails'
+  ) then
+    create policy "Authenticated users can view event photo thumbnails"
+      on storage.objects for select
+      using (
+        bucket_id = 'event-photo-thumbnails'
+        and auth.role() = 'authenticated'
       );
   end if;
 end $$;
