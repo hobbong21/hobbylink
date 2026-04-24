@@ -1,13 +1,10 @@
-"use client"
-
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { SectionHeading } from "@/components/ui/section-heading"
 import { TrustBar } from "@/components/marketing/trust-bar"
-import { LanguageToggle } from "@/components/language-toggle"
-import { useLanguage } from "@/contexts/language-context"
+import { HomeHeaderActions } from "@/components/marketing/home-header-actions"
 import {
   ArrowRight,
   Users,
@@ -29,22 +26,22 @@ import {
  *   How-it-works timeline  →  Final CTA  →  Footer
  */
 export default function HomePage() {
-  const { t } = useLanguage()
-
   const FEATURES = [
     {
       icon: Sparkles,
-      title: t("features.matching.title"),
-      description: t("features.matching.description"),
+      title: "관심사 기반 맞춤 탐색",
+      description:
+        "미술, 게임, 스포츠부터 야외 활동까지. 당신이 좋아하는 모든 것을 위한 맞춤형 커뮤니티를 손쉽게 찾아보세요.",
       href: "/interests",
-      badge: t("features.matching.badge"),
+      badge: "관심사 기반 매칭",
     },
     {
       icon: Heart,
-      title: t("features.community.title"),
-      description: t("features.community.description"),
+      title: "신뢰할 수 있는 커뮤니티",
+      description:
+        "AI 평판 시스템은 모든 사용자의 활동을 기반으로 신뢰도를 평가하여 안전한 만남 환경을 조성합니다. 안심하고 새로운 친구들을 만나보세요.",
       href: "/community",
-      badge: t("features.community.badge"),
+      badge: "신뢰할 수 있는 커뮤니티",
     },
     {
       icon: CalendarCheck,
@@ -88,15 +85,7 @@ export default function HomePage() {
               API
             </Link>
           </nav>
-          <div className="flex items-center gap-2">
-            <LanguageToggle />
-            <Button variant="ghost" asChild className="hidden sm:inline-flex">
-              <Link href="/login">{t("login")}</Link>
-            </Button>
-            <Button asChild>
-              <Link href="/signup">{t("signup")}</Link>
-            </Button>
-          </div>
+          <HomeHeaderActions />
         </div>
       </header>
 
@@ -260,15 +249,15 @@ export default function HomePage() {
           <SectionHeading
             align="center"
             eyebrow="By the numbers"
-            title={t("stats.title")}
-            description={t("stats.description")}
+            title="함께 성장하는 커뮤니티"
+            description="수천 명의 사용자들이 이미 HobbyLink에서 새로운 친구를 만나고 있습니다"
             className="mb-12"
           />
           <div className="grid sm:grid-cols-3 gap-4 max-w-4xl mx-auto">
             {[
-              { value: "10,000+", label: t("stats.users"), icon: Users },
-              { value: "500+", label: t("stats.categories"), icon: Heart },
-              { value: "50,000+", label: t("stats.meetings"), icon: CalendarCheck },
+              { value: "10,000+", label: "활성 사용자", icon: Users },
+              { value: "500+", label: "관심사 카테고리", icon: Heart },
+              { value: "50,000+", label: "성사된 만남", icon: CalendarCheck },
             ].map((s) => (
               <div
                 key={s.label}
@@ -375,15 +364,15 @@ export default function HomePage() {
             <div className="absolute inset-0 bg-grid-pattern opacity-60 [mask-image:radial-gradient(ellipse_at_center,black_10%,transparent_70%)]" aria-hidden="true" />
             <div className="relative">
               <h2 className="text-3xl md:text-4xl font-semibold tracking-tight mb-3">
-                {t("cta.title")}
+                지금 바로 시작하세요
               </h2>
               <p className="text-muted-foreground mb-6 max-w-xl mx-auto">
-                {t("cta.description")}
+                무료로 가입하고 당신과 같은 취미를 가진 사람들을 만나보세요
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <Button size="lg" asChild>
                   <Link href="/signup">
-                    {t("cta.button")}
+                    무료로 시작하기
                     <ArrowRight className="ml-1.5 w-4 h-4" />
                   </Link>
                 </Button>
@@ -413,35 +402,35 @@ export default function HomePage() {
               </p>
             </div>
             <FooterCol
-              title={t("footer.product")}
+              title="제품"
               links={[
-                { href: "/features", label: t("footer.features") },
-                { href: "/pricing", label: t("footer.pricing") },
-                { href: "/faq", label: t("footer.faq") },
+                { href: "/features", label: "기능" },
+                { href: "/pricing", label: "가격" },
+                { href: "/faq", label: "FAQ" },
                 { href: "/docs/api", label: "API" },
               ]}
             />
             <FooterCol
-              title={t("footer.company")}
+              title="회사"
               links={[
-                { href: "/about", label: t("footer.about") },
-                { href: "/blog", label: t("footer.blog") },
-                { href: "/careers", label: t("footer.careers") },
+                { href: "/about", label: "소개" },
+                { href: "/blog", label: "블로그" },
+                { href: "/careers", label: "채용" },
               ]}
             />
             <FooterCol
-              title={t("footer.legal")}
+              title="법적 고지"
               links={[
-                { href: "/privacy", label: t("footer.privacy") },
-                { href: "/terms", label: t("footer.terms") },
-                { href: "/cookies", label: t("footer.cookies") },
-                { href: "/status", label: t("footer.status") },
+                { href: "/privacy", label: "개인정보처리방침" },
+                { href: "/terms", label: "이용약관" },
+                { href: "/cookies", label: "쿠키 정책" },
+                { href: "/status", label: "서비스 상태" },
               ]}
             />
           </div>
           <div className="pt-6 border-t border-border/70 flex flex-col md:flex-row justify-between items-center gap-2 text-xs text-muted-foreground">
             <p>
-              &copy; {new Date().getFullYear()} HobbyLink. {t("footer.rights")}
+              &copy; {new Date().getFullYear()} HobbyLink. All rights reserved.
             </p>
             <p className="font-mono">v1.0 · status: operational</p>
           </div>
