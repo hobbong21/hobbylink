@@ -54,7 +54,16 @@ async function sendEmail(to: string, subject: string, html: string, text: string
   return true
 }
 
-Deno.serve(async () => {
+Deno.serve(async (req) => {
+  const authHeader = req.headers.get("Authorization") ?? ""
+  const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : ""
+  if (!token || token !== SERVICE_KEY) {
+    return new Response(JSON.stringify({ ok: false, error: "Unauthorized" }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" },
+    })
+  }
+
   const admin = createClient(SUPABASE_URL, SERVICE_KEY, {
     auth: { persistSession: false, autoRefreshToken: false },
   })

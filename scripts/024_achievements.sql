@@ -53,7 +53,7 @@ insert into public.achievements (code, label, description, icon, points) values
 on conflict (code) do nothing;
 
 -- -------------------------------------------------------------
--- Atomic unlock helper (callable from app code via RPC).
+-- Atomic unlock helper (internal use only — invoked by triggers).
 -- Returns true if the unlock was new.
 -- -------------------------------------------------------------
 create or replace function public.unlock_achievement(p_code text)
@@ -74,6 +74,12 @@ begin
   return v_inserted > 0;
 end;
 $$;
+
+-- Restrict RPC access: revoke execute from all unprivileged roles.
+-- Achievements must be granted only through server-side triggers.
+revoke execute on function public.unlock_achievement(text) from public;
+revoke execute on function public.unlock_achievement(text) from authenticated;
+revoke execute on function public.unlock_achievement(text) from anon;
 
 -- -------------------------------------------------------------
 -- Auto-triggers for passive unlocks.

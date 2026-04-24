@@ -103,6 +103,15 @@ async function processRow(
 }
 
 Deno.serve(async (req) => {
+  const authHeader = req.headers.get("Authorization") ?? ""
+  const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : ""
+  if (!token || token !== SUPABASE_SERVICE_ROLE_KEY) {
+    return new Response(JSON.stringify({ ok: false, error: "Unauthorized" }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" },
+    })
+  }
+
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
   const url = new URL(req.url)
   const singleId = url.searchParams.get("photo_id")

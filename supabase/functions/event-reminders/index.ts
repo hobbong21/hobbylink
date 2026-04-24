@@ -55,6 +55,15 @@ function escapeHtml(s: string) {
 }
 
 Deno.serve(async (req) => {
+  const authHeader = req.headers.get("Authorization") ?? ""
+  const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : ""
+  if (!token || token !== SUPABASE_SERVICE_ROLE_KEY) {
+    return new Response(JSON.stringify({ ok: false, error: "Unauthorized" }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" },
+    })
+  }
+
   if (req.method !== "POST" && req.method !== "GET") {
     return new Response("Method not allowed", { status: 405 })
   }

@@ -116,3 +116,7 @@ begin
   return v_id;
 end;
 $$;
+
+-- Restrict RPC access: revoke default public execute, allow authenticated only.
+revoke execute on function public.get_or_create_tag(text) from public;
+grant execute on function public.get_or_create_tag(text) to authenticated;
