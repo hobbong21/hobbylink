@@ -1,23 +1,8 @@
 -- ============================================================================
--- 033_profile_visibility.sql
--- Adds a `visibility` flag on profiles so users can hide their profile from
--- anyone they haven't matched or been followed by. Default `public` keeps
--- the current behavior.
+-- Patch: fix infinite recursion in profiles SELECT policy
+-- Run this once in the Supabase SQL Editor.
 -- ============================================================================
 
-do $$
-begin
-  if not exists (select 1 from pg_type where typname = 'profile_visibility') then
-    create type public.profile_visibility as enum ('public', 'connections', 'private');
-  end if;
-end $$;
-
-alter table public.profiles
-  add column if not exists visibility public.profile_visibility
-    not null default 'public';
-
--- SECURITY DEFINER helper to check admin status without triggering RLS recursion
--- on the profiles table when used inside profiles' own policies.
 create or replace function public.is_admin(uid uuid)
 returns boolean
 language sql
@@ -31,8 +16,6 @@ $$;
 revoke all on function public.is_admin(uuid) from public;
 grant execute on function public.is_admin(uuid) to authenticated, anon, service_role;
 
--- Replace the SELECT policy from 004_security_hardening with a
--- visibility-aware version.
 drop policy if exists "Authenticated users can view profiles" on public.profiles;
 drop policy if exists "Public profiles are viewable by everyone" on public.profiles;
 drop policy if exists "Profiles readable by visibility rules" on public.profiles;
@@ -40,13 +23,9 @@ drop policy if exists "Profiles readable by visibility rules" on public.profiles
 create policy "Profiles readable by visibility rules"
   on public.profiles for select
   using (
-    -- Own profile is always readable
     auth.uid() = id
-    -- Admins can read everyone (uses SECURITY DEFINER to avoid recursion)
     or public.is_admin(auth.uid())
-    -- Public profiles are readable by any authenticated user
     or (visibility = 'public' and auth.role() = 'authenticated')
-    -- "connections" visibility: readable by mutual-match peers and followers
     or (
       visibility = 'connections'
       and auth.role() = 'authenticated'
