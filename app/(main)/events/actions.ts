@@ -126,30 +126,18 @@ export async function joinEvent(eventId: string) {
   } = await supabase.auth.getUser()
   if (!user) redirect("/login")
 
-  // Check capacity
-  const { data: ev } = await supabase
-    .from("events")
-    .select("max_participants, current_participants")
-    .eq("id", eventId)
-    .single()
-  if (!ev) return { ok: false as const, message: "모임을 찾을 수 없습니다" }
-
-  const isFull =
-    ev.max_participants !== null &&
-    (ev.current_participants ?? 0) >= ev.max_participants
-
-  // Full → waitlist instead of rejecting.
-  const status = isFull ? "waitlisted" : "registered"
-
-  const { error } = await supabase.from("event_participants").upsert(
-    { event_id: eventId, user_id: user.id, status },
-    { onConflict: "event_id,user_id" },
-  )
+  // Capacity check and registration are handled atomically by the
+  // DB-level SECURITY DEFINER function; no direct table write here.
+  const { data: rpcResult, error } = await supabase.rpc("join_event", {
+    p_event_id: eventId,
+  })
   if (error) return { ok: false as const, message: error.message }
+  const result = rpcResult as { ok: boolean; status?: string; message?: string }
+  if (!result.ok) return { ok: false as const, message: result.message ?? "참가 실패" }
 
   revalidatePath(`/events/${eventId}`)
   revalidatePath("/events")
-  return { ok: true as const, status }
+  return { ok: true as const, status: result.status ?? "registered" }
 }
 
 export async function cancelEvent(
@@ -251,14 +239,16 @@ export async function respondToInvitation(
     .eq("id", invitationId)
   if (error) return { ok: false as const, message: error.message }
 
-  // Accept → auto-register participant
+  // Accept → register participant via the capacity-enforcing DB function.
   if (action === "accept") {
-    await supabase
-      .from("event_participants")
-      .upsert(
-        { event_id: invitation.event_id, user_id: user.id, status: "registered" },
-        { onConflict: "event_id,user_id" },
-      )
+    const { data: rpcResult, error: joinError } = await supabase.rpc("join_event", {
+      p_event_id: invitation.event_id,
+    })
+    if (joinError) return { ok: false as const, message: joinError.message }
+    const joinData = rpcResult as { ok: boolean; status?: string; message?: string }
+    if (!joinData?.ok) {
+      return { ok: false as const, message: joinData?.message ?? "참가 등록 실패" }
+    }
   }
 
   revalidatePath(`/events/${invitation.event_id}`)
